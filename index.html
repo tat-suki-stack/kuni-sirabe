@@ -1,0 +1,2429 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="国しらべ">
+<meta name="theme-color" content="#2980d9">
+<title>🌍 世界の国しらべ</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --blue:#2980d9;--blue-dark:#1a5fa8;--blue-light:#e8f3fd;
+  --green:#27ae60;--green-light:#e8f8ee;
+  --orange:#e67e22;--orange-light:#fef3e2;
+  --red:#e74c3c;--red-light:#fdecea;
+  --purple:#8e44ad;--purple-light:#f5eafc;
+  --teal:#16a085;--teal-light:#e6f7f4;
+  --gray:#7f8c8d;--gray-light:#f4f6f7;
+  --text:#2c3e50;--text2:#5d6d7e;--text3:#95a5a6;
+  --bg:#f0f7ff;--card:#fff;--border:#e0eaf5;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 2px 12px rgba(41,128,217,0.10);
+  --shadow-lg:0 4px 24px rgba(41,128,217,0.15);
+}
+body{
+  font-family:'Nunito',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
+
+/* ── HEADER ── */
+.header{
+  background:linear-gradient(135deg,#2980d9 0%,#1a6db8 50%,#155a99 100%);
+  padding:env(safe-area-inset-top,12px) 16px 16px;
+  text-align:center;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,0.15);
+}
+.header h1{color:#fff;font-size:20px;font-weight:900;letter-spacing:0.02em}
+.header p{color:rgba(255,255,255,0.82);font-size:12px;margin-top:2px}
+
+/* ── SEARCH ── */
+.search-wrap{padding:14px 14px 8px}
+.search-row{display:flex;gap:8px;align-items:center}
+.search-input{
+  flex:1;height:48px;border-radius:var(--radius);
+  border:1.5px solid var(--border);background:var(--card);
+  padding:0 14px;font-size:16px;font-family:'Nunito',sans-serif;
+  color:var(--text);outline:none;transition:border 0.2s;
+  box-shadow:var(--shadow);
+}
+.search-input:focus{border-color:var(--blue)}
+.search-input::placeholder{color:var(--text3)}
+.icon-btn{
+  width:48px;height:48px;border-radius:var(--radius);
+  border:1.5px solid var(--border);background:var(--card);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:20px;color:var(--text2);
+  flex-shrink:0;transition:all 0.15s;
+  box-shadow:var(--shadow);
+}
+.icon-btn:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.icon-btn.recording{background:#fdecea;border-color:var(--red);color:var(--red);animation:pulse 1s infinite}
+.search-btn{
+  height:48px;padding:0 18px;border-radius:var(--radius);
+  background:var(--blue);color:#fff;border:none;
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;white-space:nowrap;transition:opacity 0.15s;
+  box-shadow:0 2px 8px rgba(41,128,217,0.3);
+}
+.search-btn:active{opacity:0.85}
+.mic-hint{font-size:12px;color:var(--text3);text-align:center;min-height:16px;padding:4px 0}
+
+/* ── SUGGESTIONS ── */
+.suggestions-wrap{padding:0 14px 10px;overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.suggestions-wrap::-webkit-scrollbar{display:none}
+.suggestions-inner{display:flex;gap:6px;align-items:center}
+.sug-label{font-size:12px;color:var(--text3);flex-shrink:0}
+.chip{
+  display:inline-block;padding:6px 13px;border-radius:20px;
+  background:var(--card);border:1px solid var(--border);
+  font-size:13px;font-weight:700;cursor:pointer;
+  color:var(--text2);flex-shrink:0;transition:all 0.15s;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+}
+.chip:active{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+
+/* ── CONTINENT TABS ── */
+.tabs-wrap{padding:0 14px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tabs-inner{display:flex;gap:6px}
+.tab{
+  padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;
+  cursor:pointer;flex-shrink:0;border:1.5px solid var(--border);
+  background:var(--card);color:var(--text2);transition:all 0.15s;
+}
+.tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* ── RESULT ── */
+.result-wrap{padding:0 14px 80px}
+
+.result-card{
+  background:var(--card);border-radius:var(--radius);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-lg);
+  overflow:hidden;animation:slideUp 0.3s ease;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+.card-hero{
+  background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dark) 100%);
+  padding:20px 16px 16px;
+  display:flex;align-items:center;gap:14px;
+}
+.flag-big{font-size:56px;line-height:1;flex-shrink:0}
+.hero-info{flex:1;min-width:0}
+.hero-info h2{color:#fff;font-size:22px;font-weight:900;margin-bottom:2px}
+.hero-info .sub{color:rgba(255,255,255,0.8);font-size:13px}
+.cont-badge{
+  display:inline-block;margin-top:6px;
+  padding:3px 10px;border-radius:12px;
+  background:rgba(255,255,255,0.2);
+  color:#fff;font-size:12px;font-weight:700;
+}
+
+/* stats row */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border)}
+.stat-cell{padding:12px 8px;text-align:center;border-right:1px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-icon{font-size:18px;margin-bottom:2px}
+.stat-lbl{font-size:10px;color:var(--text3);margin-bottom:1px}
+.stat-val{font-size:13px;font-weight:800;color:var(--text)}
+
+/* sections */
+.sections{padding:14px}
+.sec{margin-bottom:14px}
+.sec:last-child{margin-bottom:0}
+.sec-head{
+  display:flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:800;color:var(--text2);
+  margin-bottom:8px;
+  border-left:3px solid var(--blue);padding-left:8px;
+}
+.sec-head i{font-size:16px;color:var(--blue)}
+
+/* tags */
+.tags{display:flex;flex-wrap:wrap;gap:5px}
+.tag{padding:5px 11px;border-radius:14px;font-size:12px;font-weight:700}
+.tag.industry{background:var(--green-light);color:var(--green)}
+.tag.tourism{background:var(--orange-light);color:var(--orange)}
+.tag.food{background:var(--red-light);color:var(--red)}
+.tag.world1{background:var(--purple-light);color:var(--purple)}
+
+/* big mac */
+.bigmac-box{
+  display:flex;align-items:center;gap:10px;
+  background:var(--orange-light);border-radius:var(--radius-sm);
+  padding:10px 14px;
+}
+.bigmac-price{font-size:22px;font-weight:900;color:var(--orange)}
+.bigmac-label{font-size:12px;color:var(--text2)}
+.bigmac-note{font-size:11px;color:var(--text3)}
+
+/* map */
+.map-box{
+  border-radius:var(--radius-sm);overflow:hidden;
+  border:1px solid var(--border);height:200px;
+  position:relative;background:var(--blue-light);
+}
+.map-box iframe{width:100%;height:100%;border:none;display:block}
+.map-link{
+  display:block;margin-top:6px;
+  padding:8px;border-radius:var(--radius-sm);
+  background:var(--blue-light);
+  color:var(--blue);font-size:12px;font-weight:700;
+  text-align:center;text-decoration:none;
+  border:1px solid var(--border);
+}
+.map-link i{margin-right:4px;vertical-align:-2px}
+
+/* more btn */
+.more-btn{
+  display:block;width:100%;margin-top:14px;
+  padding:13px;border-radius:var(--radius);
+  background:var(--blue);color:#fff;border:none;
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;text-align:center;
+  box-shadow:0 2px 8px rgba(41,128,217,0.3);
+}
+
+/* country list */
+.country-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:8px;
+}
+.country-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  display:flex;align-items:center;gap:8px;
+  cursor:pointer;transition:all 0.15s;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.country-item:active{background:var(--blue-light);border-color:var(--blue)}
+.country-item .cf{font-size:24px;flex-shrink:0}
+.country-item .cn{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.country-item .cc{font-size:11px;color:var(--text3)}
+
+/* loading / error */
+.loading{text-align:center;padding:40px 16px;color:var(--text3)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;margin:0 auto 12px;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-box{text-align:center;padding:32px 16px}
+.error-box .emoji{font-size:44px;margin-bottom:8px}
+.error-box p{font-size:14px;color:var(--text2)}
+
+/* install banner */
+.install-banner{
+  position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid var(--border);
+  padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 -2px 12px rgba(0,0,0,0.1);
+  z-index:200;animation:slideUp 0.4s ease;
+}
+.install-banner .icon{font-size:28px}
+.install-banner .text{flex:1;font-size:13px}
+.install-banner .text strong{display:block;font-size:14px;margin-bottom:1px}
+.install-banner-close{
+  background:var(--blue);color:#fff;border:none;
+  padding:8px 14px;border-radius:var(--radius-sm);
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;
+}
+.install-banner-x{
+  background:none;border:none;font-size:20px;color:var(--text3);cursor:pointer;padding:4px;
+}
+
+/* ── MAIN NAV ── */
+.main-nav{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.nav-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 16px;border-radius:20px;border:none;
+  background:rgba(255,255,255,0.18);color:rgba(255,255,255,0.85);
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all 0.15s;
+}
+.nav-btn i{font-size:15px}
+.nav-btn.active{background:#fff;color:var(--blue)}
+.nav-btn:active{opacity:0.8}
+
+/* ── QUIZ ── */
+.quiz-menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.quiz-type-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);
+  padding:16px 12px;text-align:center;cursor:pointer;
+  transition:all 0.15s;box-shadow:var(--shadow);
+}
+.quiz-type-card:active{transform:scale(0.97)}
+.quiz-type-card .qt-icon{font-size:36px;margin-bottom:6px}
+.quiz-type-card .qt-name{font-size:14px;font-weight:800;color:var(--text);margin-bottom:3px}
+.quiz-type-card .qt-desc{font-size:11px;color:var(--text3)}
+.quiz-type-card.flag-quiz{border-color:#e74c3c}
+.quiz-type-card.cap-quiz{border-color:#2980d9}
+.quiz-type-card.food-quiz{border-color:#e67e22}
+
+.diff-row{display:flex;gap:8px;margin-bottom:16px}
+.diff-btn{
+  flex:1;padding:10px 6px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);background:var(--card);
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;text-align:center;transition:all 0.15s;color:var(--text2);
+}
+.diff-btn.active{border-width:2px}
+.diff-btn.easy.active{background:#e8f8ee;border-color:var(--green);color:var(--green)}
+.diff-btn.normal.active{background:#e8f3fd;border-color:var(--blue);color:var(--blue)}
+.diff-btn.hard.active{background:#fdecea;border-color:var(--red);color:var(--red)}
+
+.quiz-start-btn{
+  width:100%;padding:14px;border-radius:var(--radius);
+  background:var(--blue);color:#fff;border:none;
+  font-family:'Nunito',sans-serif;font-size:16px;font-weight:900;
+  cursor:pointer;box-shadow:0 3px 10px rgba(41,128,217,0.35);
+  transition:opacity 0.15s;margin-bottom:20px;
+}
+.quiz-start-btn:active{opacity:0.85}
+
+/* quiz progress */
+.quiz-progress-bar{height:8px;background:var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden}
+.quiz-progress-fill{height:100%;background:var(--blue);border-radius:4px;transition:width 0.4s ease}
+.quiz-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:13px;color:var(--text2)}
+.streak-badge{
+  display:flex;align-items:center;gap:4px;
+  background:#fff3cd;border:1px solid #ffc107;
+  padding:3px 10px;border-radius:12px;
+  font-size:13px;font-weight:800;color:#856404;
+}
+.streak-badge.hot{background:#fdecea;border-color:var(--red);color:var(--red);animation:pulse2 0.6s ease}
+@keyframes pulse2{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+
+/* question card */
+.q-card{
+  background:var(--card);border-radius:var(--radius);
+  border:1px solid var(--border);box-shadow:var(--shadow-lg);
+  padding:20px 16px;margin-bottom:14px;text-align:center;
+  animation:slideUp 0.25s ease;
+}
+.q-flag{font-size:72px;line-height:1;margin-bottom:8px}
+.q-question{font-size:16px;font-weight:800;color:var(--text);margin-bottom:4px}
+.q-sub{font-size:12px;color:var(--text3)}
+
+/* choices */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.choice-btn{
+  padding:13px 10px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);background:var(--card);
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:all 0.15s;color:var(--text);
+  text-align:center;line-height:1.3;
+}
+.choice-btn:active{transform:scale(0.97)}
+.choice-btn.correct{background:#e8f8ee;border-color:var(--green);color:var(--green)}
+.choice-btn.wrong{background:#fdecea;border-color:var(--red);color:var(--red)}
+.choice-btn.reveal{background:#e8f8ee;border-color:var(--green);color:var(--green)}
+.choice-btn:disabled{cursor:default}
+
+/* result feedback */
+.feedback-box{
+  border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;
+  animation:slideUp 0.2s ease;
+}
+.feedback-box.correct-fb{background:#e8f8ee;border:1px solid #a3e0b8}
+.feedback-box.wrong-fb{background:#fdecea;border:1px solid #f5b8b8}
+.feedback-title{font-size:16px;font-weight:900;margin-bottom:4px}
+.feedback-tip{font-size:13px;color:var(--text2);line-height:1.5}
+
+.next-btn{
+  width:100%;padding:13px;border-radius:var(--radius);
+  background:var(--blue);color:#fff;border:none;
+  font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;box-shadow:0 2px 8px rgba(41,128,217,0.3);
+}
+
+/* result screen */
+.result-screen{text-align:center;padding:20px 0}
+.result-score{font-size:56px;font-weight:900;color:var(--blue);line-height:1}
+.result-label{font-size:14px;color:var(--text2);margin-bottom:16px}
+.result-stars{font-size:32px;margin-bottom:12px}
+.result-comment{font-size:15px;font-weight:700;color:var(--text);margin-bottom:20px}
+.result-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;
+}
+.rs-cell{background:var(--bg);border-radius:var(--radius-sm);padding:10px 6px;text-align:center}
+.rs-val{font-size:20px;font-weight:900;color:var(--text)}
+.rs-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+.result-btns{display:flex;gap:8px}
+.result-btns button{
+  flex:1;padding:13px;border-radius:var(--radius);
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;
+}
+.btn-retry{background:var(--blue);color:#fff;border:none;box-shadow:0 2px 8px rgba(41,128,217,0.3)}
+.btn-menu{background:var(--card);color:var(--text);border:1.5px solid var(--border)}
+
+/* ── RANKING ── */
+.ranking-tabs{display:flex;gap:6px;margin-bottom:14px}
+.rtab{
+  flex:1;padding:8px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);background:var(--card);
+  font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;text-align:center;color:var(--text2);transition:all 0.15s;
+}
+.rtab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ranking-list{display:flex;flex-direction:column;gap:8px}
+.rank-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.rank-num{font-size:18px;font-weight:900;min-width:28px;text-align:center}
+.rank-num.gold{color:#f1c40f}
+.rank-num.silver{color:#95a5a6}
+.rank-num.bronze{color:#cd7f32}
+.rank-info{flex:1}
+.rank-name{font-size:14px;font-weight:800;color:var(--text)}
+.rank-detail{font-size:12px;color:var(--text3)}
+.rank-score{font-size:18px;font-weight:900;color:var(--blue)}
+.rank-empty{text-align:center;padding:40px 16px;color:var(--text3);font-size:14px}
+.rank-empty .big{font-size:40px;margin-bottom:8px}
+.name-input-wrap{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.name-input-wrap label{font-size:13px;font-weight:700;color:var(--text2);display:block;margin-bottom:6px}
+.name-input{
+  width:100%;padding:10px 12px;border-radius:var(--radius-sm);
+  border:1.5px solid var(--border);font-family:'Nunito',sans-serif;
+  font-size:15px;color:var(--text);outline:none;
+}
+.name-input:focus{border-color:var(--blue)}
+.save-btn{
+  width:100%;margin-top:8px;padding:11px;border-radius:var(--radius-sm);
+  background:var(--blue);color:#fff;border:none;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;
+}
+.sec-title{font-size:15px;font-weight:900;color:var(--text);margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌍 世界の国しらべ</h1>
+  <div class="main-nav">
+    <button class="nav-btn active" id="navSearch" onclick="showPage('search')"><i class="ti ti-search"></i>しらべる</button>
+    <button class="nav-btn" id="navQuiz" onclick="showPage('quiz')"><i class="ti ti-brain"></i>クイズ</button>
+    <button class="nav-btn" id="navRanking" onclick="showPage('ranking')"><i class="ti ti-trophy"></i>ランキング</button>
+  </div>
+</div>
+
+<div id="page-search">
+<div class="search-wrap">
+  <div class="search-row">
+    <input class="search-input" id="inp" type="text" placeholder="国名を入力（例：フランス、ブラジル）" autocomplete="off">
+    <button class="icon-btn" id="micBtn" aria-label="音声入力"><i class="ti ti-microphone"></i></button>
+    <button class="search-btn" id="searchBtn">しらべる</button>
+  </div>
+  <p class="mic-hint" id="micHint"></p>
+</div>
+
+<div class="suggestions-wrap">
+  <div class="suggestions-inner" id="chips">
+    <span class="sug-label">例：</span>
+  </div>
+</div>
+
+<div style="padding:0 14px 8px">
+  <div class="tabs-wrap" style="padding:0">
+    <div class="tabs-inner" id="tabs"></div>
+  </div>
+</div>
+
+<div class="result-wrap" id="result">
+  <div class="country-grid" id="countryGrid"></div>
+</div>
+</div><!-- end page-search -->
+
+<div id="installBanner" style="display:none"></div>
+
+<!-- QUIZ PAGE -->
+<div id="page-quiz" style="display:none">
+  <div id="quiz-inner" style="padding:14px 14px 80px"></div>
+</div>
+
+<!-- RANKING PAGE -->
+<div id="page-ranking" style="display:none">
+  <div id="ranking-inner" style="padding:14px 14px 80px"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA: 50カ国
+// ═══════════════════════════════════════
+const COUNTRIES = {
+  '日本':      {en:'Japan',      flag:'🇯🇵',cont:'アジア',   cap:'東京',         pop:'約1億2,400万人',area:'37.8万km²',  currency:'円（JPY）',        lat:35.68,  lon:139.69,
+    ind:['自動車','電子機器','ロボット工学','アニメ・マンガ','半導体'],
+    tour:['富士山','東京スカイツリー','京都の寺社','温泉','奈良公園'],
+    food:['寿司','ラーメン','天ぷら','たこ焼き','抹茶スイーツ'],
+    w1:['世界一のロボット生産国','新幹線（高速鉄道の元祖）','自動販売機の密度が世界一'],
+    bmc:'約480円（¥480）',mofa:'https://www.mofa.go.jp/mofaj/area/japan/index.html'},
+
+  'アメリカ':  {en:'USA',        flag:'🇺🇸',cont:'北米',     cap:'ワシントンD.C.',pop:'約3億3,000万人',area:'983万km²',   currency:'ドル（USD）',       lat:38.90,  lon:-77.04,
+    ind:['IT・テクノロジー','航空宇宙','農業','金融','エンタメ'],
+    tour:['自由の女神','グランドキャニオン','ディズニーランド','ラスベガス','イエローストーン'],
+    food:['ハンバーガー','BBQリブ','クラムチャウダー','アップルパイ','コーンドッグ'],
+    w1:['GDP世界1位（最大の経済大国）','NASAで宇宙開発をリード','ハリウッド映画の本場'],
+    bmc:'約800円（$5.58）',mofa:'https://www.mofa.go.jp/mofaj/area/usa/index.html'},
+
+  'フランス':  {en:'France',     flag:'🇫🇷',cont:'ヨーロッパ',cap:'パリ',         pop:'約6,800万人',  area:'64万km²',    currency:'ユーロ（EUR）',      lat:48.85,  lon:2.35,
+    ind:['航空宇宙','ファッション','ワイン','観光','原子力'],
+    tour:['エッフェル塔','ルーヴル美術館','モンサンミッシェル','ヴェルサイユ宮殿','コートダジュール'],
+    food:['バゲット','クロワッサン','エスカルゴ','クレープ','マカロン'],
+    w1:['世界で最も観光客が多い国','世界一のワイン輸出国（消費も多い）','ファッションの世界の中心地'],
+    bmc:'約730円（€4.75）',mofa:'https://www.mofa.go.jp/mofaj/area/france/index.html'},
+
+  'ドイツ':    {en:'Germany',    flag:'🇩🇪',cont:'ヨーロッパ',cap:'ベルリン',      pop:'約8,400万人',  area:'35.7万km²',  currency:'ユーロ（EUR）',      lat:52.52,  lon:13.40,
+    ind:['自動車','機械製造','化学','再生可能エネルギー','IT'],
+    tour:['ノイシュバンシュタイン城','ブランデンブルク門','ロマンチック街道','オクトーバーフェスト','黒い森'],
+    food:['ソーセージ（ブラートヴルスト）','ザワークラウト','プレッツェル','シュニッツェル','シュトルーデル'],
+    w1:['EU最大の経済大国','自動車ブランド（BMW・ベンツ・VW）の本場','再生可能エネルギー先進国'],
+    bmc:'約650円（€4.24）',mofa:'https://www.mofa.go.jp/mofaj/area/germany/index.html'},
+
+  'イギリス':  {en:'UK',         flag:'🇬🇧',cont:'ヨーロッパ',cap:'ロンドン',      pop:'約6,700万人',  area:'24.3万km²',  currency:'ポンド（GBP）',      lat:51.51,  lon:-0.12,
+    ind:['金融','製薬','航空宇宙','クリエイティブ産業','観光'],
+    tour:['バッキンガム宮殿','ビッグベン','ストーンヘンジ','スコットランド高地','大英博物館'],
+    food:['フィッシュ＆チップス','イングリッシュブレックファスト','スコーン','パブフード','ビーフウェリントン'],
+    w1:['産業革命発祥の地','英語の本場（世界共通語）','サッカーのルールを作った国'],
+    bmc:'約910円（£4.99）',mofa:'https://www.mofa.go.jp/mofaj/area/uk/index.html'},
+
+  'イタリア':  {en:'Italy',      flag:'🇮🇹',cont:'ヨーロッパ',cap:'ローマ',        pop:'約5,900万人',  area:'30.1万km²',  currency:'ユーロ（EUR）',      lat:41.90,  lon:12.50,
+    ind:['ファッション','食品','観光','機械','自動車'],
+    tour:['コロッセオ','ヴェネツィア','ポンペイ遺跡','トスカーナ','アマルフィ海岸'],
+    food:['ピザ','パスタ','ジェラート','リゾット','ティラミス'],
+    w1:['世界遺産の数が世界最多クラス','ルネサンス芸術の発祥の地','ピザとパスタを世界に広めた'],
+    bmc:'約560円（€3.65）',mofa:'https://www.mofa.go.jp/mofaj/area/italy/index.html'},
+
+  'スペイン':  {en:'Spain',      flag:'🇪🇸',cont:'ヨーロッパ',cap:'マドリード',    pop:'約4,700万人',  area:'50.6万km²',  currency:'ユーロ（EUR）',      lat:40.42,  lon:-3.70,
+    ind:['観光','農業','自動車','再生可能エネルギー','食品'],
+    tour:['サグラダファミリア','アルハンブラ宮殿','バルセロナ','マドリードのプラド美術館','サン・セバスティアン'],
+    food:['パエリア','ガスパチョ','タパス','チュロス','ハモン（生ハム）'],
+    w1:['オリーブオイルの生産量が世界一','サッカーリーガ・エスパニョーラは世界最強リーグのひとつ','フラメンコの発祥地'],
+    bmc:'約560円（€3.65）',mofa:'https://www.mofa.go.jp/mofaj/area/spain/index.html'},
+
+  'ロシア':    {en:'Russia',     flag:'🇷🇺',cont:'ヨーロッパ',cap:'モスクワ',      pop:'約1億4,500万人',area:'1,710万km²', currency:'ルーブル（RUB）',    lat:55.75,  lon:37.62,
+    ind:['石油・天然ガス','軍事産業','鉄鋼','農業','宇宙'],
+    tour:['クレムリン','赤の広場','バイカル湖','エルミタージュ美術館','シベリア鉄道'],
+    food:['ボルシチ','ペリメニ','ブリヌィ','ピロシキ','キャビア'],
+    w1:['世界最大の国土面積（1,710万km²）','バイカル湖は世界最深の湖','世界最長の鉄道（シベリア鉄道）'],
+    bmc:'約300円（₽135）',mofa:'https://www.mofa.go.jp/mofaj/area/russia/index.html'},
+
+  '中国':      {en:'China',      flag:'🇨🇳',cont:'アジア',   cap:'北京',          pop:'約14億人',     area:'960万km²',   currency:'人民元（CNY）',      lat:39.91,  lon:116.39,
+    ind:['製造業','IT','電子機器','鉄鋼','再生可能エネルギー'],
+    tour:['万里の長城','故宮','兵馬俑','桂林','黄山'],
+    food:['北京ダック','餃子','火鍋','小籠包','麻婆豆腐'],
+    w1:['世界一の人口（14億人）','万里の長城は地球最長の建造物','太陽光発電量が世界一'],
+    bmc:'約620円（¥24）',mofa:'https://www.mofa.go.jp/mofaj/area/china/index.html'},
+
+  'インド':    {en:'India',      flag:'🇮🇳',cont:'アジア',   cap:'ニューデリー',  pop:'約14億2,000万人',area:'329万km²',  currency:'ルピー（INR）',      lat:28.61,  lon:77.21,
+    ind:['IT・ソフトウェア','医薬品','繊維','農業','映画産業'],
+    tour:['タージマハル','ガンジス川','ジャイプール','ケーララ','ゴア'],
+    food:['カレー','ナン','ビリヤニ','サモサ','ラッシー'],
+    w1:['人口が世界最多（2023年に中国を超えた）','映画制作本数が世界一（ボリウッド）','ゼロの概念を発明した国'],
+    bmc:'約280円（₹190）',mofa:'https://www.mofa.go.jp/mofaj/area/india/index.html'},
+
+  '韓国':      {en:'South Korea',flag:'🇰🇷',cont:'アジア',   cap:'ソウル',        pop:'約5,200万人',  area:'10万km²',    currency:'ウォン（KRW）',      lat:37.57,  lon:126.98,
+    ind:['半導体','電子機器','自動車','K-POP','造船'],
+    tour:['景福宮','済州島','明洞','DMZ','釜山'],
+    food:['キムチ','ビビンバ','チキン','トッポギ','サムゲタン'],
+    w1:['インターネット速度が世界最速クラス','K-POPで世界の音楽市場をリード','半導体（メモリ）の世界最大輸出国'],
+    bmc:'約640円（₩5,600）',mofa:'https://www.mofa.go.jp/mofaj/area/korea/index.html'},
+
+  'ブラジル':  {en:'Brazil',     flag:'🇧🇷',cont:'南米',     cap:'ブラジリア',    pop:'約2億1,500万人',area:'851万km²',   currency:'レアル（BRL）',      lat:-15.78, lon:-47.93,
+    ind:['農業','鉱業','航空機製造','石油','観光'],
+    tour:['リオのカーニバル','アマゾン川','イグアスの滝','コパカバーナビーチ','パンタナール'],
+    food:['シュラスコ（BBQ）','フェイジョアーダ','アサイー','ポンデケージョ','ブリガデイロ'],
+    w1:['アマゾン熱帯雨林は地球の肺（世界最大の熱帯雨林）','サッカーW杯最多優勝（5回）','コーヒー生産量が世界一'],
+    bmc:'約800円（R$19）',mofa:'https://www.mofa.go.jp/mofaj/area/brazil/index.html'},
+
+  'オーストラリア':{en:'Australia',flag:'🇦🇺',cont:'オセアニア',cap:'キャンベラ',  pop:'約2,600万人',  area:'769万km²',   currency:'豪ドル（AUD）',      lat:-35.28, lon:149.13,
+    ind:['鉱業','農業','観光','金融','教育'],
+    tour:['シドニーオペラハウス','グレートバリアリーフ','エアーズロック（ウルル）','コアラ・カンガルー','ゴールドコースト'],
+    food:['バービーフード（BBQ）','ミートパイ','ラミントン','フラットホワイト（コーヒー）','タイムタム'],
+    w1:['世界最大の牛の放牧地','有袋類（カンガルー・コアラ）の宝庫','グレートバリアリーフは世界最大のサンゴ礁'],
+    bmc:'約770円（A$6.70）',mofa:'https://www.mofa.go.jp/mofaj/area/australia/index.html'},
+
+  'カナダ':    {en:'Canada',     flag:'🇨🇦',cont:'北米',     cap:'オタワ',        pop:'約3,800万人',  area:'998万km²',   currency:'カナダドル（CAD）',  lat:45.42,  lon:-75.70,
+    ind:['鉱業','林業','石油','農業','航空宇宙'],
+    tour:['ナイアガラの滝','バンフ国立公園','オーロラ（ユーコン）','ケベック旧市街','ロッキー山脈'],
+    food:['プーティン（フライドポテト）','メープルシロップ','バタータルト','ビーバーテール','スモークサーモン'],
+    w1:['国土面積が世界2位','世界最大のメープルシロップ生産国','淡水資源が世界一豊か'],
+    bmc:'約850円（CA$6.98）',mofa:'https://www.mofa.go.jp/mofaj/area/canada/index.html'},
+
+  'メキシコ':  {en:'Mexico',     flag:'🇲🇽',cont:'北米',     cap:'メキシコシティ',pop:'約1億3,000万人',area:'196万km²',   currency:'ペソ（MXN）',        lat:19.43,  lon:-99.13,
+    ind:['自動車','石油','農業','観光','電子機器'],
+    tour:['チチェン・イッツァ','グアナファト','カンクン','テオティワカン','オアハカ'],
+    food:['タコス','ブリトー','グアカモレ','エンチラーダ','チョコレート（発祥地）'],
+    w1:['チョコレートの発祥の地（カカオ原産地）','世界遺産の数が世界トップクラス','アボカドの生産量が世界最多'],
+    bmc:'約340円（$55 MXN）',mofa:'https://www.mofa.go.jp/mofaj/area/mexico/index.html'},
+
+  'アルゼンチン':{en:'Argentina', flag:'🇦🇷',cont:'南米',    cap:'ブエノスアイレス',pop:'約4,600万人', area:'278万km²',   currency:'ペソ（ARS）',        lat:-34.61, lon:-58.44,
+    ind:['農業','牧畜','石油','食品加工','観光'],
+    tour:['イグアスの滝','パタゴニア','ブエノスアイレスのタンゴ','ペリトモレノ氷河','アコンカグア山'],
+    food:['アサード（BBQ）','エンパナーダ','マテ茶','ドルセ・デ・レチェ','チョリパン'],
+    w1:['タンゴ発祥の地','牛肉消費量が世界トップクラス','W杯2022で優勝（メッシの国）'],
+    bmc:'約520円（$1,400 ARS）',mofa:'https://www.mofa.go.jp/mofaj/area/argentina/index.html'},
+
+  'エジプト':  {en:'Egypt',      flag:'🇪🇬',cont:'アフリカ', cap:'カイロ',        pop:'約1億600万人', area:'100万km²',   currency:'エジプトポンド（EGP）',lat:30.04,  lon:31.24,
+    ind:['観光','石油','農業','繊維','スエズ運河'],
+    tour:['ピラミッド・スフィンクス','ナイル川クルーズ','ルクソール神殿','紅海リゾート','アレクサンドリア'],
+    food:['コシャリ','フール（豆料理）','タアメイヤ（ファラフェル）','マハシー','ウムアリ'],
+    w1:['ギザのピラミッドは古代7大不思議のひとつ','スエズ運河は世界の重要な航路','世界最古の文明のひとつ（古代エジプト）'],
+    bmc:'約180円（EGP 95）',mofa:'https://www.mofa.go.jp/mofaj/area/egypt/index.html'},
+
+  '南アフリカ':{en:'South Africa',flag:'🇿🇦',cont:'アフリカ',cap:'プレトリア',    pop:'約6,000万人',  area:'122万km²',   currency:'ランド（ZAR）',      lat:-25.75, lon:28.19,
+    ind:['鉱業（金・ダイヤ）','農業','観光','製造業','金融'],
+    tour:['サファリ（クルーガー国立公園）','喜望峰','ケープタウン','テーブルマウンテン','ワインランド'],
+    food:['ブライ（BBQ）','ボボティ','バンニェトコーキー','ビルトン（干し肉）','ルイボスティー'],
+    w1:['金の産出量が歴史的に世界最多','世界で最も多くの公用語（11言語）','ネルソン・マンデラのアパルトヘイト廃絶'],
+    bmc:'約440円（R54）',mofa:'https://www.mofa.go.jp/mofaj/area/s_africa/index.html'},
+
+  'ナイジェリア':{en:'Nigeria',   flag:'🇳🇬',cont:'アフリカ',cap:'アブジャ',      pop:'約2億2,000万人',area:'92.4万km²',  currency:'ナイラ（NGN）',      lat:9.07,   lon:7.40,
+    ind:['石油・天然ガス','農業','通信','映画（ノリウッド）','鉱業'],
+    tour:['ヤンカリ国立公園','オコムポ山','ラゴスのビーチ','エヌグの地下鉄','クロスリバー'],
+    food:['ジョロフライス','スープ（エグシ）','スエヤ（串焼き）','プランテン','フフ'],
+    w1:['アフリカ最大の経済大国','映画産業（ノリウッド）は世界第2位の規模','アフリカ最多の人口'],
+    bmc:'約440円（₦3,800）',mofa:'https://www.mofa.go.jp/mofaj/area/nigeria/index.html'},
+
+  'ケニア':    {en:'Kenya',      flag:'🇰🇪',cont:'アフリカ', cap:'ナイロビ',      pop:'約5,500万人',  area:'58.2万km²',  currency:'シリング（KES）',    lat:-1.29,  lon:36.82,
+    ind:['農業（茶・コーヒー）','観光','通信','製造業','花卉'],
+    tour:['マサイマラ国立保護区','アンボセリ国立公園','ナクル湖','モンバサのビーチ','キリマンジャロ'],
+    food:['ウガリ（とうもろこし料理）','ニャマチョマ（ヤギ肉焼き）','チャパティ','マンダジ','ケニア紅茶'],
+    w1:['マラソン選手が世界最強クラス（多数のW記録保持）','ケニア紅茶は世界三大紅茶のひとつ','マサイマラは世界最大の動物の大移動の舞台'],
+    bmc:'約380円（KES 560）',mofa:'https://www.mofa.go.jp/mofaj/area/kenya/index.html'},
+
+  'トルコ':    {en:'Turkey',     flag:'🇹🇷',cont:'アジア',   cap:'アンカラ',      pop:'約8,500万人',  area:'78.5万km²',  currency:'リラ（TRY）',        lat:39.93,  lon:32.86,
+    ind:['繊維','自動車','観光','農業','建設'],
+    tour:['カッパドキア','イスタンブール（ハギアソフィア）','パムッカレ','エフェソス遺跡','ボスポラス海峡'],
+    food:['ケバブ','バクラヴァ','ドネル','トルコアイス（ドンドゥルマ）','メネメン'],
+    w1:['カッパドキアの奇岩地帯は世界的絶景','アジアとヨーロッパにまたがる国','チューリップの原産地'],
+    bmc:'約440円（₺205）',mofa:'https://www.mofa.go.jp/mofaj/area/turkey/index.html'},
+
+  'サウジアラビア':{en:'Saudi Arabia',flag:'🇸🇦',cont:'アジア',cap:'リヤド',       pop:'約3,600万人',  area:'215万km²',   currency:'リヤル（SAR）',      lat:24.69,  lon:46.72,
+    ind:['石油','石油化学','観光（Vision 2030）','建設','金融'],
+    tour:['マスジド・アル・ハラーム（メッカ）','アル・ウラー','ネオム（建設中）','ジェッダ歴史地区','ディルイーヤ'],
+    food:['カブサ（羊肉ライス）','シャワルマ','フムス','マンダ','ルクマット（揚げドーナツ）'],
+    w1:['世界最大の石油輸出国','メッカは世界最大のイスラム教の聖地','サウジアラムコは世界最大の石油会社'],
+    bmc:'約440円（SAR 14）',mofa:'https://www.mofa.go.jp/mofaj/area/saudi/index.html'},
+
+  'アラブ首長国連邦':{en:'UAE',    flag:'🇦🇪',cont:'アジア',  cap:'アブダビ',      pop:'約1,000万人',  area:'8.3万km²',   currency:'ディルハム（AED）',  lat:24.45,  lon:54.37,
+    ind:['石油','観光','金融','不動産','航空'],
+    tour:['ブルジュ・ハリファ（世界一高いビル）','ドバイモール','アブダビ（ルーヴル）','デザート・サファリ','ヤス島'],
+    food:['ハリース（小麦粥）','マチブース','シャワルマ','ルム（ラクダ肉料理）','ウムアリ'],
+    w1:['ブルジュ・ハリファは世界一高いビル（828m）','ドバイは砂漠に作られた未来都市','人口の約89%が外国人'],
+    bmc:'約550円（AED 22）',mofa:'https://www.mofa.go.jp/mofaj/area/uae/index.html'},
+
+  'タイ':      {en:'Thailand',   flag:'🇹🇭',cont:'アジア',   cap:'バンコク',      pop:'約7,200万人',  area:'51.3万km²',  currency:'バーツ（THB）',      lat:13.75,  lon:100.52,
+    ind:['観光','自動車','農業（コメ）','電子機器','食品加工'],
+    tour:['ワット・ポー（寝釈迦仏）','チェンマイ','アユタヤ遺跡','プーケット','コ・サムイ'],
+    food:['パッタイ','グリーンカレー','トムヤムクン','マンゴースティッキーライス','ソムタム'],
+    w1:['微笑みの国と呼ばれる（Smile Country）','コメの輸出量が世界トップクラス','ムエタイ（格闘技）の発祥地'],
+    bmc:'約380円（฿128）',mofa:'https://www.mofa.go.jp/mofaj/area/thailand/index.html'},
+
+  'ベトナム':  {en:'Vietnam',    flag:'🇻🇳',cont:'アジア',   cap:'ハノイ',        pop:'約9,700万人',  area:'33.1万km²',  currency:'ドン（VND）',        lat:21.03,  lon:105.85,
+    ind:['製造業','農業','観光','IT','繊維'],
+    tour:['ハロン湾','ホイアン','フォンニャ鍾乳洞','ホーチミン市','サパの棚田'],
+    food:['フォー（米麺）','バインミー（バゲットサンド）','ブンボーフエ','ゴイクォン（生春巻き）','ベトナムコーヒー'],
+    w1:['ハロン湾は世界遺産（奇岩群）','カシューナッツの輸出量が世界最多','コーヒー豆（ロブスタ）の生産量が世界2位'],
+    bmc:'約230円（₫65,000）',mofa:'https://www.mofa.go.jp/mofaj/area/vietnam/index.html'},
+
+  'インドネシア':{en:'Indonesia', flag:'🇮🇩',cont:'アジア',  cap:'ジャカルタ',    pop:'約2億7,700万人',area:'191万km²',   currency:'ルピア（IDR）',      lat:-6.21,  lon:106.85,
+    ind:['農業（パーム油）','鉱業','製造業','観光','石油'],
+    tour:['バリ島','ボロブドゥール遺跡','コモド島（コモドドラゴン）','ラジャアンパット','ジャワ島の火山'],
+    food:['ナシゴレン（炒飯）','ミーゴレン（炒め麺）','サテ（串焼き）','ガドガド','テンペ'],
+    w1:['世界最多の島の数（約1万7,000島）','イスラム教徒の人口が世界最多','パーム油の生産量が世界一'],
+    bmc:'約360円（Rp43,000）',mofa:'https://www.mofa.go.jp/mofaj/area/indonesia/index.html'},
+
+  'フィリピン': {en:'Philippines',flag:'🇵🇭',cont:'アジア',  cap:'マニラ',        pop:'約1億1,500万人',area:'30万km²',    currency:'ペソ（PHP）',        lat:14.60,  lon:120.98,
+    ind:['BPO（コールセンター）','農業','観光','電子機器','送金'],
+    tour:['パラワン島','ボホール島（チョコレートヒルズ）','セブ島','コルディリェラの棚田','ボラカイ島'],
+    food:['アドボ（煮込み）','シニガン（酸っぱいスープ）','レチョン（丸焼き豚）','ハロハロ','パンシット'],
+    w1:['世界最大の英語圏の島国','海外送金がGDPの約10%（世界トップ）','サンゴ礁の種類が世界最多クラス'],
+    bmc:'約330円（₱119）',mofa:'https://www.mofa.go.jp/mofaj/area/philippines/index.html'},
+
+  'マレーシア': {en:'Malaysia',   flag:'🇲🇾',cont:'アジア',  cap:'クアラルンプール',pop:'約3,300万人', area:'33万km²',    currency:'リンギット（MYR）',  lat:3.15,   lon:101.69,
+    ind:['電子機器','パーム油','観光','石油','自動車（プロトン）'],
+    tour:['ペトロナスツインタワー','ランカウイ島','ペナン','ボルネオ島（オランウータン）','キナバル山'],
+    food:['ナシレマ（国民食・ご飯料理）','ラクサ','チャークイティオ','バクテー（豚骨スープ）','マンゴスチン'],
+    w1:['ペトロナスツインタワーはかつて世界一高い双子ビル','オランウータンの野生生息地のひとつ','熱帯雨林の生物多様性が世界トップクラス'],
+    bmc:'約490円（RM10.50）',mofa:'https://www.mofa.go.jp/mofaj/area/malaysia/index.html'},
+
+  'シンガポール':{en:'Singapore', flag:'🇸🇬',cont:'アジア',  cap:'シンガポール',  pop:'約600万人',    area:'0.073万km²', currency:'シンガポールドル（SGD）',lat:1.35, lon:103.82,
+    ind:['金融','物流（港湾）','IT','製薬','観光'],
+    tour:['マリーナベイサンズ','ガーデンズ・バイ・ザ・ベイ','セントーサ島','チャイナタウン','ユニバーサル・スタジオ'],
+    food:['チリクラブ','ハイナンチキンライス','チャーキュアイティオ','ラクサ','カヤトースト'],
+    w1:['世界で最も競争力のある経済国トップクラス','世界で最もクリーンな都市のひとつ','港湾の貨物量が世界トップクラス'],
+    bmc:'約870円（S$6.40）',mofa:'https://www.mofa.go.jp/mofaj/area/singapore/index.html'},
+
+  'ギリシャ':  {en:'Greece',     flag:'🇬🇷',cont:'ヨーロッパ',cap:'アテネ',       pop:'約1,060万人',  area:'13.2万km²',  currency:'ユーロ（EUR）',      lat:37.98,  lon:23.73,
+    ind:['観光','海運','農業','食品','製造業'],
+    tour:['アテネのアクロポリス','サントリーニ島','ミコノス島','オリンピア遺跡','クレタ島'],
+    food:['ムサカ','ギリシャサラダ','スブラキ（串焼き）','スパナコピタ','バクラヴァ'],
+    w1:['西洋民主主義の発祥の地','オリンピックの発祥の地（古代ギリシャ）','ギリシャ神話は世界文化の基盤'],
+    bmc:'約590円（€3.85）',mofa:'https://www.mofa.go.jp/mofaj/area/greece/index.html'},
+
+  'ポルトガル': {en:'Portugal',   flag:'🇵🇹',cont:'ヨーロッパ',cap:'リスボン',     pop:'約1,030万人',  area:'9.2万km²',   currency:'ユーロ（EUR）',      lat:38.72,  lon:-9.14,
+    ind:['観光','農業（コルク・オリーブ）','製造業','エネルギー','水産業'],
+    tour:['シントラ','リスボンのアルファマ地区','アルガルヴェ海岸','ポルト','マデイラ島'],
+    food:['エッグタルト（パステル・デ・ナタ）','バカリャウ（干し鱈）','フランセジーニャ','ポルトワイン','イワシのグリル'],
+    w1:['コルク生産量が世界一（世界の約50%）','大航海時代の先駆け（バスコ・ダ・ガマ）','エッグタルトを世界に広めた'],
+    bmc:'約530円（€3.45）',mofa:'https://www.mofa.go.jp/mofaj/area/portugal/index.html'},
+
+  'スウェーデン':{en:'Sweden',    flag:'🇸🇪',cont:'ヨーロッパ',cap:'ストックホルム', pop:'約1,060万人', area:'45万km²',    currency:'クローナ（SEK）',    lat:59.33,  lon:18.07,
+    ind:['製造業（ボルボ）','IT（スポティファイ）','林業','医療機器','再生可能エネルギー'],
+    tour:['ストックホルム旧市街','アビスコでのオーロラ','ヴァーサ号博物館','ダーラナ地方','ゴットランド島'],
+    food:['スウェーデンミートボール','シナモンロール（フィーカ）','ニシンの酢漬け','サーモン料理','ルートフィスク'],
+    w1:['IKEAとスポティファイ（Spotify）の発祥地','ノーベル賞授賞式が行われる国','自転車・持続可能性の先進国'],
+    bmc:'約790円（kr58）',mofa:'https://www.mofa.go.jp/mofaj/area/sweden/index.html'},
+
+  'スイス':    {en:'Switzerland',flag:'🇨🇭',cont:'ヨーロッパ',cap:'ベルン',        pop:'約870万人',    area:'4.1万km²',   currency:'フラン（CHF）',      lat:46.95,  lon:7.44,
+    ind:['金融（銀行）','製薬','時計','観光','精密機械'],
+    tour:['マッターホルン','ユングフラウ','ジュネーヴ','インターラーケン','ルツェルン'],
+    food:['チーズフォンデュ','ラクレット','チョコレート','ロスティ（ジャガイモ料理）','バーゼルのレープクーヘン'],
+    w1:['スイス銀行は世界の富の管理で有名','時計（ロレックス・オメガ）の品質が世界一','永世中立国として200年以上戦争なし'],
+    bmc:'約1,100円（CHF 7.00）',mofa:'https://www.mofa.go.jp/mofaj/area/switzerland/index.html'},
+
+  'オランダ':  {en:'Netherlands',flag:'🇳🇱',cont:'ヨーロッパ',cap:'アムステルダム',pop:'約1,780万人',  area:'4.2万km²',   currency:'ユーロ（EUR）',      lat:52.37,  lon:4.90,
+    ind:['農業（花卉）','化学','IT','港湾物流','金融'],
+    tour:['アムステルダムの運河','キューケンホフ（チューリップ）','風車（キンデルダイク）','アンネフランクの家','デルフト'],
+    food:['ストロープワッフル','ハーリング（生ニシン）','ゴーダチーズ','パンネクーク（パンケーキ）','スペキュラース'],
+    w1:['チューリップの最大輸出国（世界の花卉貿易の中心）','世界最大の水門技術を持つ国（国土の多くが海面下）','自転車の密度が世界一（人口より多い）'],
+    bmc:'約690円（€4.50）',mofa:'https://www.mofa.go.jp/mofaj/area/netherlands/index.html'},
+
+  'ノルウェー': {en:'Norway',     flag:'🇳🇴',cont:'ヨーロッパ',cap:'オスロ',        pop:'約540万人',    area:'38.5万km²',  currency:'クローナ（NOK）',    lat:59.91,  lon:10.75,
+    ind:['石油・天然ガス','水産業（サーモン）','再生可能エネルギー','海運','観光'],
+    tour:['フィヨルド（ソグネフィヨルド）','オーロラ（トロムソ）','ロフォーテン諸島','ベルゲン','ビグデイ博物館'],
+    food:['スモークサーモン','クネッケ（クリスプブレッド）','フェリケーラー（羊のソーセージ）','ブラウンチーズ','ラクリス（甘草菓子）'],
+    w1:['一人当たりGDPが世界最高水準','世界最長・最深のフィヨルドがある','ノーベル平和賞の授与国'],
+    bmc:'約1,100円（kr82）',mofa:'https://www.mofa.go.jp/mofaj/area/norway/index.html'},
+
+  'フィンランド':{en:'Finland',   flag:'🇫🇮',cont:'ヨーロッパ',cap:'ヘルシンキ',   pop:'約560万人',    area:'33.8万km²',  currency:'ユーロ（EUR）',      lat:60.17,  lon:24.94,
+    ind:['IT（ノキア）','林業','製造業','デザイン','教育'],
+    tour:['サンタクロース村（ロヴァニエミ）','オーロラ','ヘルシンキ大聖堂','サイマー湖','タンペレ'],
+    food:['サーモンスープ','カレリアのパイ','サルミアッキ（塩甘草）','ルイスレイパ（ライ麦パン）','ムーミンカフェ'],
+    w1:['サンタクロースの故郷（公式）','世界一幸福度の高い国（2023年連続1位）','教育システムが世界最高水準（PISA世界トップ）'],
+    bmc:'約680円（€4.40）',mofa:'https://www.mofa.go.jp/mofaj/area/finland/index.html'},
+
+  'ニュージーランド':{en:'New Zealand',flag:'🇳🇿',cont:'オセアニア',cap:'ウェリントン',pop:'約500万人',  area:'27万km²',    currency:'NZドル（NZD）',      lat:-41.29, lon:174.78,
+    ind:['農業','観光','映画産業','乳製品','IT'],
+    tour:['フィヨルドランド国立公園','ホビット村','ロトルア（地熱）','クイーンズタウン','ミルフォードサウンド'],
+    food:['ラム肉料理','キウイフルーツ','ハンギ（マオリ料理）','パブロバ（メレンゲケーキ）','フィッシュ＆チップス'],
+    w1:['世界で最初に女性参政権を認めた国','ロード・オブ・ザ・リング（指輪物語）の撮影地','キウイフルーツの主要輸出国'],
+    bmc:'約830円（NZ$7.10）',mofa:'https://www.mofa.go.jp/mofaj/area/nz/index.html'},
+
+  'ペルー':    {en:'Peru',       flag:'🇵🇪',cont:'南米',     cap:'リマ',          pop:'約3,300万人',  area:'128万km²',   currency:'ソル（PEN）',        lat:-12.05, lon:-77.04,
+    ind:['鉱業','農業','観光','漁業','製造業'],
+    tour:['マチュ・ピチュ','クスコ','ナスカの地上絵','アマゾン川源流','チチカカ湖'],
+    food:['セビーチェ（魚のマリネ）','ロモ・サルタード','アヒ・デ・ガリーナ','ピスコサワー','クイ（モルモット料理）'],
+    w1:['マチュ・ピチュは世界の七不思議のひとつ','ジャガイモの原産地（3,000種以上）','アマゾン川の源流がある'],
+    bmc:'約560円（S/12）',mofa:'https://www.mofa.go.jp/mofaj/area/peru/index.html'},
+
+  'コロンビア': {en:'Colombia',   flag:'🇨🇴',cont:'南米',    cap:'ボゴタ',        pop:'約5,200万人',  area:'114万km²',   currency:'ペソ（COP）',        lat:4.71,   lon:-74.07,
+    ind:['コーヒー','農業','鉱業（石炭・エメラルド）','観光','石油'],
+    tour:['カルタヘナの旧市街','コーヒー産地（エヘ・カフェテロ）','シウダード・ペルディダ','サン・アグスティン遺跡','アマゾン川流域'],
+    food:['バンデハ・パイサ（豆・肉盛り合わせ）','アレパ（コーントルティーヤ）','ソパ・デ・アホ','ブニュエロ','コロンビアコーヒー'],
+    w1:['世界最高品質コーヒー産地のひとつ','エメラルドの産出量が世界の約50%','南米唯一の太平洋と大西洋の両海岸を持つ国（南米大陸の北端）'],
+    bmc:'約440円（$14,900 COP）',mofa:'https://www.mofa.go.jp/mofaj/area/colombia/index.html'},
+
+  'イラン':    {en:'Iran',       flag:'🇮🇷',cont:'アジア',   cap:'テヘラン',      pop:'約8,600万人',  area:'164万km²',   currency:'リアル（IRR）',      lat:35.69,  lon:51.39,
+    ind:['石油・天然ガス','自動車','鉄鋼','農業','カーペット'],
+    tour:['ペルセポリス遺跡','イスファハン','シーラーズ','ゴレスタン宮殿','カスピ海'],
+    food:['ゲルメ・サブジ（スープ）','チェロー・カバブ','フェセンジャン（クルミソース煮）','サフランアイス','ザクロ料理'],
+    w1:['ペルシャ文明は世界最古の文明のひとつ','サフランの生産量が世界一（約90%）','絨毯（ペルシャ絨毯）は世界的な芸術品'],
+    bmc:'約100円（IRR 63,000）',mofa:'https://www.mofa.go.jp/mofaj/area/iran/index.html'},
+
+  'パキスタン': {en:'Pakistan',   flag:'🇵🇰',cont:'アジア',  cap:'イスラマバード', pop:'約2億3,000万人',area:'88.1万km²',  currency:'ルピー（PKR）',      lat:33.72,  lon:73.06,
+    ind:['繊維','農業','製造業','IT','建設'],
+    tour:['フンザ渓谷','ラホールの旧市街','モヘンジョダロ遺跡','K2（世界第2位の高山）','カラコルム・ハイウェイ'],
+    food:['ビリヤニ','ニハリ','シークカバブ','ハルワ（甘い菓子）','ラッシー'],
+    w1:['K2（世界第2位の高山8,611m）がある','モヘンジョダロはインダス文明の遺跡','世界最大のカラコルム氷河群がある'],
+    bmc:'約220円（Rs680）',mofa:'https://www.mofa.go.jp/mofaj/area/pakistan/index.html'},
+
+  'バングラデシュ':{en:'Bangladesh',flag:'🇧🇩',cont:'アジア',cap:'ダッカ',        pop:'約1億7,000万人',area:'14.8万km²',  currency:'タカ（BDT）',        lat:23.81,  lon:90.41,
+    ind:['繊維・縫製','農業（ジュート）','漁業','製薬','IT'],
+    tour:['スンダルバンス（マングローブ林）','コックスバザール（世界最長のビーチ）','パハルプール仏教遺跡','ムヘシュカリ島'],
+    food:['ビリヤニ','ヒルサ魚料理','ダル（豆スープ）','ロシュゴッラ（甘い菓子）','プラウン・マラー'],
+    w1:['コックスバザールは世界最長の砂浜（約120km）','衣類輸出量が世界2位（中国に次ぐ）','スンダルバンスは世界最大のマングローブ林'],
+    bmc:'約200円（৳240）',mofa:'https://www.mofa.go.jp/mofaj/area/bangladesh/index.html'},
+
+  'スリランカ': {en:'Sri Lanka',  flag:'🇱🇰',cont:'アジア',  cap:'スリジャヤワルデネプラコッテ',pop:'約2,200万人',area:'6.6万km²',  currency:'ルピー（LKR）',  lat:6.93,   lon:79.86,
+    ind:['紅茶','繊維','観光','農業（ゴム・ゴコナッツ）','IT'],
+    tour:['シーギリヤ（ライオン岩）','キャンディ（仏歯寺）','ヌワラエリヤ（紅茶農園）','ゴール旧市街','アヌラーダプラ遺跡'],
+    food:['ホパーズ（椀型パンケーキ）','ライスアンドカリー','コットゥロティ','セイロンティー','ラブガハ（ジャックフルーツ）'],
+    w1:['セイロン紅茶（世界三大紅茶）の産地','シーギリヤは「8th wonder of the world」とも呼ばれる','宝石の産出量が世界トップクラス（サファイア・ルビー）'],
+    bmc:'約260円（Rs850）',mofa:'https://www.mofa.go.jp/mofaj/area/srilanka/index.html'},
+
+  'ミャンマー': {en:'Myanmar',    flag:'🇲🇲',cont:'アジア',  cap:'ネピドー',      pop:'約5,400万人',  area:'67.7万km²',  currency:'チャット（MMK）',    lat:16.87,  lon:96.17,
+    ind:['農業','天然ガス','宝石（翡翠・ルビー）','繊維','林業'],
+    tour:['バガン（仏塔群）','インレー湖','ヤンゴン（シュエダゴォン・パゴダ）','マンダレー','ゴールデンロック'],
+    food:['モヒンガー（魚スープ麺）','ラペットウ（お茶の葉サラダ）','シャン料理','ウンノカウスエ（カレー麺）','パラタ'],
+    w1:['翡翠（ジェード）の産出量が世界の約90%','バガンは世界最大の仏塔群（2,000以上）','ルビーの主要産地'],
+    bmc:'約230円（K4,500）',mofa:'https://www.mofa.go.jp/mofaj/area/myanmar/index.html'},
+
+  'カンボジア': {en:'Cambodia',   flag:'🇰🇭',cont:'アジア',  cap:'プノンペン',    pop:'約1,700万人',  area:'18.1万km²',  currency:'リエル（KHR）',      lat:11.56,  lon:104.92,
+    ind:['観光（アンコール遺跡）','縫製','農業（コメ）','建設','IT'],
+    tour:['アンコール・ワット','アンコール・トム','トンレサップ湖','コンポントム','シアヌークビル'],
+    food:['アモック（魚のカレー蒸し）','ロック・ラク（牛肉炒め）','ボーボー（お粥）','クロ・コ（揚げバナナ）','カンボジアコーヒー'],
+    w1:['アンコール・ワットは世界最大の宗教建築','国旗に建物が描かれている珍しい国','トンレサップ湖は東南アジア最大の淡水湖'],
+    bmc:'約280円（$2.10）',mofa:'https://www.mofa.go.jp/mofaj/area/cambodia/index.html'},
+
+  'ネパール':  {en:'Nepal',      flag:'🇳🇵',cont:'アジア',   cap:'カトマンズ',    pop:'約3,000万人',  area:'14.7万km²',  currency:'ルピー（NPR）',      lat:27.71,  lon:85.32,
+    ind:['観光（トレッキング）','農業','水力発電','手工芸','IT'],
+    tour:['エベレスト（チトワン国立公園）','ポカラ','パシュパティナート寺院','アンナプルナトレッキング','ルンビニ（仏陀生誕地）'],
+    food:['ダルバート（豆スープとご飯）','モモ（餃子）','セル（揚げドーナツ）','チャ（バターティー）','クワティ（豆スープ）'],
+    w1:['世界最高峰エベレスト（8,849m）がある','唯一四角形でない国旗を持つ国','仏陀（釈迦）の生誕地（ルンビニ）'],
+    bmc:'約260円（Rs390）',mofa:'https://www.mofa.go.jp/mofaj/area/nepal/index.html'},
+
+  'エチオピア': {en:'Ethiopia',   flag:'🇪🇹',cont:'アフリカ',cap:'アディスアベバ', pop:'約1億2,700万人',area:'110万km²',   currency:'ビル（ETB）',        lat:9.03,   lon:38.74,
+    ind:['農業（コーヒー）','観光','製造業','建設','IT'],
+    tour:['ラリベラの岩窟教会','ダナキル凹地（世界で最も暑い場所）','オモ渓谷','ゲラダヒヒの生息地','アクスム遺跡'],
+    food:['インジェラ（発酵パンケーキ）','ドロ・ワット（チキンシチュー）','キトフォ（生肉料理）','テフの料理','エチオピアコーヒー'],
+    w1:['コーヒーの発祥の地（カファ地方）','アフリカで植民地にされなかった数少ない国','人類最古の化石「ルーシー」の発見地'],
+    bmc:'約230円（ETB 180）',mofa:'https://www.mofa.go.jp/mofaj/area/ethiopia/index.html'},
+
+  'モロッコ':  {en:'Morocco',    flag:'🇲🇦',cont:'アフリカ', cap:'ラバト',        pop:'約3,700万人',  area:'71万km²',    currency:'ディルハム（MAD）',  lat:33.99,  lon:-6.85,
+    ind:['リン鉱石（世界最大の埋蔵量）','観光','農業','繊維','漁業'],
+    tour:['マラケシュのメディナ','フェズの旧市街','サハラ砂漠（メルズーガ）','シャウエン（青い街）','エッサウィラ'],
+    food:['タジン（煮込み料理）','クスクス','ハリラスープ','バスティラ（パイ）','アルガンオイル料理'],
+    w1:['リン鉱石の埋蔵量が世界一（約70%）','アルガンオイルはモロッコにしか生産されない','アフリカと最もヨーロッパに近い国'],
+    bmc:'約380円（DH42）',mofa:'https://www.mofa.go.jp/mofaj/area/morocco/index.html'},
+
+  'タンザニア': {en:'Tanzania',   flag:'🇹🇿',cont:'アフリカ',cap:'ドドマ',        pop:'約6,300万人',  area:'94.5万km²',  currency:'シリング（TZS）',    lat:-6.17,  lon:35.74,
+    ind:['農業','観光（サファリ）','鉱業','漁業','製造業'],
+    tour:['セレンゲティ国立公園','キリマンジャロ','ザンジバル島','ンゴロンゴロ保全地域','タランギレ国立公園'],
+    food:['ウガリ（トウモロコシ料理）','ピラウ（スパイスご飯）','チャカラ（ビーチBBQ）','ザンジバルピザ','ムシカキ（串焼き）'],
+    w1:['キリマンジャロはアフリカ最高峰（5,895m）','セレンゲティは世界最大の動物の大移動の舞台','ザンジバルはスパイスアイランドと呼ばれる'],
+    bmc:'約330円（TZS 8,500）',mofa:'https://www.mofa.go.jp/mofaj/area/tanzania/index.html'},
+
+  'ガーナ':    {en:'Ghana',      flag:'🇬🇭',cont:'アフリカ', cap:'アクラ',        pop:'約3,300万人',  area:'23.9万km²',  currency:'セディ（GHS）',      lat:5.56,   lon:-0.20,
+    ind:['カカオ（チョコレート原料）','金鉱業','石油','観光','農業'],
+    tour:['ケープコースト城（奴隷貿易の歴史）','モレ国立公園','クマシのアサンテ王国','ボアブム滝','アクロシンボダム'],
+    food:['フフ（ヤムイモ料理）','ジョロフライス','ケンキ（発酵料理）','チチンガ（串焼き）','ココ（お粥）'],
+    w1:['カカオ豆の生産量が世界2位','アフリカ初の独立国（1957年）','世界最大の人工湖（ボルタ湖）がある'],
+    bmc:'約440円（GHS 80）',mofa:'https://www.mofa.go.jp/mofaj/area/ghana/index.html'},
+
+  'キューバ':  {en:'Cuba',       flag:'🇨🇺',cont:'北米',     cap:'ハバナ',        pop:'約1,100万人',  area:'11万km²',    currency:'ペソ（CUP）',        lat:23.14,  lon:-82.36,
+    ind:['観光','砂糖','葉巻（タバコ）','医療（医薬品輸出）','ニッケル'],
+    tour:['ハバナの旧市街','ビニャーレス渓谷','トリニダーの旧市街','カヨ・ココビーチ','サンティアゴ・デ・クーバ'],
+    food:['ロパビエハ（牛肉煮込み）','コングリ（黒豆ご飯）','モホソース','クバリブレ（ラム＋コーラ）','モヒートカクテル'],
+    w1:['モヒートとダイキリの発祥の地','医療システムがカリブ海で最高水準','クラシックカーが現役で走る唯一の国'],
+    bmc:'約390円（CUP 115）',mofa:'https://www.mofa.go.jp/mofaj/area/cuba/index.html'},
+
+  'チリ':      {en:'Chile',      flag:'🇨🇱',cont:'南米',     cap:'サンティアゴ',  pop:'約1,900万人',  area:'75.6万km²',  currency:'ペソ（CLP）',        lat:-33.46, lon:-70.65,
+    ind:['銅鉱業','農業（ワイン）','観光','林業','漁業'],
+    tour:['パタゴニア（トレス・デル・パイネ）','アタカマ砂漠','イースター島（モアイ像）','ヴァルパライソ','チロエ島'],
+    food:['エンパナーダ','セビーチェ','カスエラ（鍋料理）','パスクアリナ','チリワイン'],
+    w1:['アタカマ砂漠は世界最乾燥の砂漠','銅の産出量が世界一（世界の約30%）','南北に最も長い国（4,270km）'],
+    bmc:'約480円（$3,500 CLP）',mofa:'https://www.mofa.go.jp/mofaj/area/chile/index.html'},
+
+  'ウクライナ': {en:'Ukraine',    flag:'🇺🇦',cont:'ヨーロッパ',cap:'キーウ',        pop:'約4,400万人',  area:'60.4万km²',  currency:'フリヴニャ（UAH）',  lat:50.45,  lon:30.52,
+    ind:['農業（小麦・ひまわり）','鉄鋼','IT','化学','機械'],
+    tour:['キーウのペチェールスカ大修道院','リビウ旧市街','カルパチア山脈','チェルノブイリ（見学ツアー）','オデーサ'],
+    food:['ボルシチ（発祥の地）','ヴァレニキ（水餃子）','サーロ（豚の脂の塩漬け）','ウクライナのパンパスキ','ガルシチ（スープ）'],
+    w1:['ひまわり油の輸出量が世界一','ボルシチはウクライナの国民料理（ユネスコ文化遺産）','小麦の主要輸出国（世界の穀倉地帯）'],
+    bmc:'約290円（₴108）',mofa:'https://www.mofa.go.jp/mofaj/area/ukraine/index.html'},
+
+  'ポーランド': {en:'Poland',     flag:'🇵🇱',cont:'ヨーロッパ',cap:'ワルシャワ',    pop:'約3,800万人',  area:'31.3万km²',  currency:'ズウォティ（PLN）',  lat:52.23,  lon:21.01,
+    ind:['製造業','食品','IT','農業','観光'],
+    tour:['クラクフの旧市街','アウシュヴィッツ（歴史遺跡）','ヴロツワフ','タトラ山脈','ビャウォヴィエジャ原生林'],
+    food:['ピエロギ（水餃子）','ビゴス（煮込み）','フレブ（パン）','ジュレク（酸っぱいスープ）','ポーランドウォッカ'],
+    w1:['ショパンの生誕の地','ヨーロッパ最大の原生林（ビャウォヴィエジャ）がある','コペルニクス（地動説）の故郷'],
+    bmc:'約490円（zł14.90）',mofa:'https://www.mofa.go.jp/mofaj/area/poland/index.html'},
+
+  'アイスランド':{en:'Iceland',   flag:'🇮🇸',cont:'ヨーロッパ',cap:'レイキャビク',  pop:'約38万人',     area:'10.3万km²',  currency:'クローナ（ISK）',    lat:64.14,  lon:-21.94,
+    ind:['地熱エネルギー','漁業','観光','アルミニウム製造','IT'],
+    tour:['オーロラ','ゴールデンサークル（間欠泉）','ブルーラグーン','アイスケイブ（氷河洞窟）','レイキャビク'],
+    food:['スカイル（ヨーグルト）','ハカール（発酵サメ肉）','ラムスープ','ロブスタースープ','アイスランドホットドッグ'],
+    w1:['再生可能エネルギー（地熱・水力）で電力の100%をまかなう国','世界で最も平和な国ランキングで常に上位','活火山の数が多く火山活動が活発な島国'],
+    bmc:'約1,100円（ISK 899）',mofa:'https://www.mofa.go.jp/mofaj/area/iceland/index.html'},
+
+  'イスラエル': {en:'Israel',     flag:'🇮🇱',cont:'アジア',   cap:'エルサレム',    pop:'約960万人',    area:'2.2万km²',   currency:'シェケル（ILS）',    lat:31.77,  lon:35.22,
+    ind:['IT（シリコンワジ）','防衛産業','農業（砂漠農業）','ダイヤモンド','製薬'],
+    tour:['エルサレム旧市街（嘆きの壁）','死海','テルアビブ','マサダ要塞','ガリラヤ湖'],
+    food:['フムス','ファラフェル','シャクシューカ（卵トマト煮）','サブレ（スイーツ）','イスラエルサラダ'],
+    w1:['スタートアップの密度が世界一（スタートアップ国家）','死海は地球上で最も低い場所（海面下430m）','砂漠農業の技術が世界最先端（点滴灌漑発祥）'],
+    bmc:'約1,200円（₪24.90）',mofa:'https://www.mofa.go.jp/mofaj/area/israel/index.html'},
+  'アイルランド':{en:'Ireland',flag:'🇮🇪',cont:'ヨーロッパ',cap:'ダブリン',pop:'約510万人',area:'7万km²',currency:'ユーロ（EUR）',lat:53.33,lon:-6.25,
+    ind:['IT（アップル・グーグル欧州本社）','医薬品','農業','金融','観光'],
+    tour:['クリフス・オブ・モハー','ダブリン城','リング・オブ・ケリー','ジャイアンツ・コーズウェー','ケルズの書'],
+    food:['アイリッシュシチュー','フィッシュ＆チップス','ソーダブレッド','フルアイリッシュブレックファスト','ギネスビール'],
+    w1:['ハロウィンの発祥地（ケルト民族のサウィン祭り）','世界最大のウイスキー輸出国のひとつ','アイルランド語は欧州最古の言語のひとつ'],
+    bmc:'約670円（€4.37）',mofa:'https://www.mofa.go.jp/mofaj/area/ireland/index.html'},
+  'オーストリア':{en:'Austria',flag:'🇦🇹',cont:'ヨーロッパ',cap:'ウィーン',pop:'約910万人',area:'8.4万km²',currency:'ユーロ（EUR）',lat:48.21,lon:16.37,
+    ind:['観光','機械','化学','食品','金融'],
+    tour:['ウィーン国立歌劇場','ザルツブルク（モーツァルトの生家）','ハルシュタット','シェーンブルン宮殿','インスブルック'],
+    food:['ウィンナーシュニッツェル','アプフェルシュトゥルーデル','ザッハトルテ','タフェルシュピッツ','グラーシュ'],
+    w1:['モーツァルト・シューベルト・ハイドンの故郷（音楽の都）','国連機関が集まる国際都市ウィーン','スキーリゾートとして世界有数のアルプス山脈'],
+    bmc:'約630円（€4.10）',mofa:'https://www.mofa.go.jp/mofaj/area/austria/index.html'},
+  'ベルギー':{en:'Belgium',flag:'🇧🇪',cont:'ヨーロッパ',cap:'ブリュッセル',pop:'約1,160万人',area:'3万km²',currency:'ユーロ（EUR）',lat:50.85,lon:4.35,
+    ind:['化学','食品','製造業','EU機関','ダイヤモンド'],
+    tour:['ブリュッセルのグラン・プラス','ブルージュの運河','アントワープ','ゲント','アルデンヌの森'],
+    food:['ベルギーワッフル','フリッツ（フライドポテト発祥）','チョコレート','ムール貝料理','ベルギービール'],
+    w1:['フライドポテトはベルギー発祥と言われる','EUとNATOの本部が置かれる国','チョコレートの品質が世界最高水準'],
+    bmc:'約660円（€4.30）',mofa:'https://www.mofa.go.jp/mofaj/area/belgium/index.html'},
+  'チェコ':{en:'Czech Republic',flag:'🇨🇿',cont:'ヨーロッパ',cap:'プラハ',pop:'約1,080万人',area:'7.9万km²',currency:'コルナ（CZK）',lat:50.08,lon:14.44,
+    ind:['自動車','機械','電子機器','観光','ビール'],
+    tour:['プラハ旧市街（天文時計）','チェスキー・クルムロフ','カルロヴィ・ヴァリ','ブルノ','ボヘミアガラス'],
+    food:['スヴィーチュコヴァー（牛肉煮込み）','ブランボラーク（じゃがいもパンケーキ）','チェコビール','トゥルデルニーク（筒状パン）','グラーシュ'],
+    w1:['一人当たりのビール消費量が世界一','プラハは「百塔の街」と呼ばれる','ピルスナービールの発祥地（ピルゼン）'],
+    bmc:'約470円（Kč115）',mofa:'https://www.mofa.go.jp/mofaj/area/czech/index.html'},
+  'ハンガリー':{en:'Hungary',flag:'🇭🇺',cont:'ヨーロッパ',cap:'ブダペスト',pop:'約970万人',area:'9.3万km²',currency:'フォリント（HUF）',lat:47.50,lon:19.04,
+    ind:['自動車','電子機器','製薬','農業','観光'],
+    tour:['ブダペスト（くさり橋）','ハンガリー温泉','バラトン湖','エゲル','ホッロークー村'],
+    food:['グヤーシュ（グラーシュスープ）','チキンパプリカーシュ','ランゴシュ（揚げパン）','フォアグラ','トカイワイン'],
+    w1:['温泉の数が世界有数（1,500以上）','ルービックキューブはハンガリー人の発明','世界最辛パプリカ産地のひとつ'],
+    bmc:'約490円（Ft1,800）',mofa:'https://www.mofa.go.jp/mofaj/area/hungary/index.html'},
+  'ルーマニア':{en:'Romania',flag:'🇷🇴',cont:'ヨーロッパ',cap:'ブカレスト',pop:'約1,900万人',area:'23.8万km²',currency:'レイ（RON）',lat:44.43,lon:26.10,
+    ind:['自動車','IT','農業','石油','観光'],
+    tour:['ドラキュラ城（ブラン城）','シギショアラ旧市街','ブカレスト旧市街','トランシルヴァニア','ドナウデルタ'],
+    food:['ママリガ（とうもろこし粥）','サルマーレ（ロールキャベツ）','チョルバ（スープ）','ミチ（ソーセージ）','コゾナック（甘いパン）'],
+    w1:['ドラキュラ伝説発祥の地（トランシルヴァニア）','ドナウデルタはヨーロッパ最大の湿地帯','世界最長の自動車用橋のひとつ'],
+    bmc:'約380円（lei20）',mofa:'https://www.mofa.go.jp/mofaj/area/romania/index.html'},
+  'ブルガリア':{en:'Bulgaria',flag:'🇧🇬',cont:'ヨーロッパ',cap:'ソフィア',pop:'約640万人',area:'11.1万km²',currency:'レフ（BGN）',lat:42.70,lon:23.32,
+    ind:['農業','IT','観光','製造業','食品'],
+    tour:['リラ修道院','ソフィア旧市街','ヴァルナのビーチ','バルカン山脈','プロヴディフ旧市街'],
+    food:['ショプスカサラダ','バニッツァ（チーズパイ）','タラトル（冷製スープ）','カパマ（煮込み）','ヨーグルト'],
+    w1:['ヨーグルトの発祥地（ラクトバシルスブルガリクス菌）','バラオイルの世界最大の生産国','キリル文字の発祥地'],
+    bmc:'約370円（лв3.50）',mofa:'https://www.mofa.go.jp/mofaj/area/bulgaria/index.html'},
+  'クロアチア':{en:'Croatia',flag:'🇭🇷',cont:'ヨーロッパ',cap:'ザグレブ',pop:'約400万人',area:'5.7万km²',currency:'ユーロ（EUR）',lat:45.81,lon:15.98,
+    ind:['観光','造船','製薬','農業','IT'],
+    tour:['ドブロブニク旧市街','プリトヴィツェ湖群国立公園','スプリット','ロヴィニュ','コルチュラ島'],
+    food:['シュトルクリ（チーズ餃子）','パシュティツァーダ（牛肉煮込み）','ドルマ（ロールキャベツ）','クロアチアワイン','マラスキーノ'],
+    w1:['ネクタイの発祥の地','ドブロブニクは「アドリア海の真珠」','プリトヴィツェの滝は16の湖が連なる絶景'],
+    bmc:'約510円（€3.33）',mofa:'https://www.mofa.go.jp/mofaj/area/croatia/index.html'},
+  'セルビア':{en:'Serbia',flag:'🇷🇸',cont:'ヨーロッパ',cap:'ベオグラード',pop:'約700万人',area:'7.7万km²',currency:'ディナール（RSD）',lat:44.80,lon:20.46,
+    ind:['自動車','鉄鋼','農業','IT','観光'],
+    tour:['ベオグラード要塞','ノヴィ・サド','コパオニク山','ジチャ修道院','ドナウ川渓谷'],
+    food:['ツェヴァプチチ（ミンチ肉焼き）','アイヴァル（唐辛子ペースト）','プレスカヴィツァ','ラキヤ（蒸留酒）','ブレク（パイ）'],
+    w1:['ニコラ・テスラの生誕地','ラズベリーの輸出量が世界トップクラス','ノヴィ・サドはヨーロッパの文化首都に選ばれた'],
+    bmc:'約300円（din400）',mofa:'https://www.mofa.go.jp/mofaj/area/serbia/index.html'},
+  'スロバキア':{en:'Slovakia',flag:'🇸🇰',cont:'ヨーロッパ',cap:'ブラチスラバ',pop:'約550万人',area:'4.9万km²',currency:'ユーロ（EUR）',lat:48.15,lon:17.11,
+    ind:['自動車','電子機器','鉄鋼','農業','観光'],
+    tour:['スピシュ城','ブラチスラバ旧市街','タトラ山脈','スロバキア洞窟','バンスカー・シュチャヴニツァ'],
+    food:['ブリンゾヴェー・ハルシュキ（じゃがいも餃子）','カプストニツァ（キャベツスープ）','シュトルードル','スロバキアワイン','オシュティエパク（チーズ）'],
+    w1:['一人当たりの自動車生産台数が世界一','スロバキアの洞窟は世界遺産を含む欧州最大クラス','カルパティア山脈の野生動物が豊富'],
+    bmc:'約480円（€3.15）',mofa:'https://www.mofa.go.jp/mofaj/area/slovak/index.html'},
+  'スロベニア':{en:'Slovenia',flag:'🇸🇮',cont:'ヨーロッパ',cap:'リュブリャナ',pop:'約210万人',area:'2万km²',currency:'ユーロ（EUR）',lat:46.05,lon:14.51,
+    ind:['製造業','観光','IT','農業','医薬品'],
+    tour:['ブレッド湖','ポストイナ鍾乳洞','リュブリャナ旧市街','トリグラフ国立公園','ピラン'],
+    food:['ポティツァ（くるみロールケーキ）','ジュリカ（ビーフシチュー）','イドリヤ餃子','クランスカ・クロバサ（ソーセージ）','スロベニアワイン'],
+    w1:['世界最長の洞窟鉄道があるポストイナ鍾乳洞','ブレッド湖は中央に島がある絶景の湖','ヨーロッパで最も緑豊かな国のひとつ'],
+    bmc:'約490円（€3.20）',mofa:'https://www.mofa.go.jp/mofaj/area/slovenia/index.html'},
+  'デンマーク':{en:'Denmark',flag:'🇩🇰',cont:'ヨーロッパ',cap:'コペンハーゲン',pop:'約590万人',area:'4.3万km²',currency:'クローネ（DKK）',lat:55.68,lon:12.57,
+    ind:['医薬品','海運','農業','再生可能エネルギー','IT'],
+    tour:['コペンハーゲン（ニューハウン）','レゴランド（ビルン）','チボリ公園','エルシノア城','スカーゲン'],
+    food:['スメーブロー（オープンサンド）','フリカデラー（ミートボール）','ウィエナブロー（デニッシュパン）','リコリス（甘草菓子）','スモーブロー'],
+    w1:['LEGOはデンマーク生まれ（世界最大のおもちゃ会社）','風力発電の電力比率が世界最高水準','「ヒュッゲ」文化の発祥地'],
+    bmc:'約800円（kr44）',mofa:'https://www.mofa.go.jp/mofaj/area/denmark/index.html'},
+  'ルクセンブルク':{en:'Luxembourg',flag:'🇱🇺',cont:'ヨーロッパ',cap:'ルクセンブルク',pop:'約66万人',area:'0.26万km²',currency:'ユーロ（EUR）',lat:49.61,lon:6.13,
+    ind:['金融','鉄鋼','IT（衛星通信）','観光','物流'],
+    tour:['ルクセンブルク旧市街（世界遺産）','ヴィアンデン城','ミュレルタール渓谷','エヒタナッハ','モーゼル川ワイン街道'],
+    food:['ジャッド・マット・ガーデボウネン（豚肉と豆料理）','フリカトー（肉の煮込み）','ルクセンブルクワイン','クリームスープ','グラーシュ'],
+    w1:['一人当たりGDPが世界最高水準','EUの司法裁判所がある国','国民のほぼ全員が3カ国語以上話せる多言語国家'],
+    bmc:'約700円（€4.55）',mofa:'https://www.mofa.go.jp/mofaj/area/luxembourg/index.html'},
+  'モナコ':{en:'Monaco',flag:'🇲🇨',cont:'ヨーロッパ',cap:'モナコ',pop:'約4万人',area:'0.0002万km²',currency:'ユーロ（EUR）',lat:43.73,lon:7.42,
+    ind:['観光','金融','不動産','カジノ','イベント'],
+    tour:['モンテカルロカジノ','F1モナコグランプリのコース','王宮','海洋博物館','エキゾチック庭園'],
+    food:['バルバジュアン（揚げ餃子）','フガス（フォカッチャ）','ニース料理','地中海魚料理','モナコワイン'],
+    w1:['世界で2番目に小さい国（0.2km²）','世界一人口密度が高い国','F1モナコGPは最も有名なレース'],
+    bmc:'約1,000円（€6.50）',mofa:'https://www.mofa.go.jp/mofaj/area/monaco/index.html'},
+  'サンマリノ':{en:'San Marino',flag:'🇸🇲',cont:'ヨーロッパ',cap:'サンマリノ',pop:'約3.4万人',area:'0.006万km²',currency:'ユーロ（EUR）',lat:43.94,lon:12.46,
+    ind:['観光','金融','軽工業','農業','切手・コイン'],
+    tour:['グアイタ塔','サンマリノ旧市街（世界遺産）','ティターノ山','3つの要塞','国立博物館'],
+    food:['パッサテッリ（パスタ）','チャドゥソン（デザート）','サンマリノワイン','グリルソーセージ','地元チーズ'],
+    w1:['世界で最も古い共和国（301年創設）','イタリアに囲まれた内陸の島国','世界で5番目に小さい国'],
+    bmc:'約580円（€3.80）',mofa:'https://www.mofa.go.jp/mofaj/area/sanmarino_r/index.html'},
+  'バチカン':{en:'Vatican',flag:'🇻🇦',cont:'ヨーロッパ',cap:'バチカン',pop:'約800人',area:'0.000044万km²',currency:'ユーロ（EUR）',lat:41.90,lon:12.45,
+    ind:['宗教（カトリック総本山）','観光','出版','郵便'],
+    tour:['サン・ピエトロ大聖堂','システィーナ礼拝堂（ミケランジェロの天井画）','バチカン博物館','サン・ピエトロ広場','バチカン図書館'],
+    food:['イタリア料理（ローマ料理）','バチカンカフェテリア料理','イタリアワイン'],
+    w1:['世界最小の独立国家（0.44km²）','カトリック教会の総本山（世界12億人の信者）','ミケランジェロのシスティーナ礼拝堂天井画がある'],
+    bmc:'約600円（€3.90）',mofa:'https://www.mofa.go.jp/mofaj/area/vatican/index.html'},
+  'リヒテンシュタイン':{en:'Liechtenstein',flag:'🇱🇮',cont:'ヨーロッパ',cap:'ファドーツ',pop:'約4万人',area:'0.016万km²',currency:'フラン（CHF）',lat:47.14,lon:9.52,
+    ind:['精密機械','金融','観光','農業','切手'],
+    tour:['ファドーツ城','ヴァドゥツ旧市街','マルベルン山','トリーゼンベルク','リヒテンシュタイン国立美術館'],
+    food:['ケーゼスペッツレ（チーズ麺）','リブリ（じゃがいも料理）','スイス料理','地元産ワイン','チーズ'],
+    w1:['世界で唯一、隣国が全て内陸国','国民の数より企業の数が多い','一人当たりGDPが世界トップクラス'],
+    bmc:'約1,100円（CHF 7.00）',mofa:'https://www.mofa.go.jp/mofaj/area/liechtenstein/index.html'},
+  'アンドラ':{en:'Andorra',flag:'🇦🇩',cont:'ヨーロッパ',cap:'アンドラ・ラ・ベリャ',pop:'約8万人',area:'0.047万km²',currency:'ユーロ（EUR）',lat:42.51,lon:1.52,
+    ind:['観光','スキーリゾート','免税ショッピング','農業','金融'],
+    tour:['グランバリラ（スキーリゾート）','アンドラ・ラ・ベリャ旧市街','ラ・マシャナ','エンカンプ','サント・エスタベ教会'],
+    food:['エスクデラ（シチュー）','トリンショ（豚料理）','カタルーニャ料理','アンドラチーズ','地ワイン'],
+    w1:['フランスとスペインに挟まれた小国','税金が非常に低く免税ショッピングで有名','ピレネー山脈のスキーリゾートとして人気'],
+    bmc:'約540円（€3.50）',mofa:'https://www.mofa.go.jp/mofaj/area/andorra/index.html'},
+  'マルタ':{en:'Malta',flag:'🇲🇹',cont:'ヨーロッパ',cap:'バレッタ',pop:'約54万人',area:'0.032万km²',currency:'ユーロ（EUR）',lat:35.90,lon:14.51,
+    ind:['観光','金融','IT','電子機器','製薬'],
+    tour:['バレッタ（世界遺産）','ブルーラグーン（コミノ島）','ポパイ村','マジェスティック洞窟','ムディーナ旧市街'],
+    food:['フタジ（パン入りスープ）','ブレイセット（ウサギ料理）','カンノリ（スイーツ）','パスティッツィ（パイ菓子）','マルタビール'],
+    w1:['世界最古の自立建造物（タルシーン神殿）がある','EU最小の国','マルタ語はアラビア語起源の唯一のEU公用語'],
+    bmc:'約550円（€3.60）',mofa:'https://www.mofa.go.jp/mofaj/area/malta/index.html'},
+  'キプロス':{en:'Cyprus',flag:'🇨🇾',cont:'ヨーロッパ',cap:'ニコシア',pop:'約130万人',area:'0.93万km²',currency:'ユーロ（EUR）',lat:35.17,lon:33.36,
+    ind:['観光','金融','不動産','農業','IT'],
+    tour:['パフォス（世界遺産）','トロードス山脈','アイア・ナパビーチ','リマソール','アフロディーテ生誕地'],
+    food:['ハルミチーズ（グリル）','メゼ（小皿料理）','ソウヴラキ（串焼き）','ルヴィア（赤豆スープ）','コマンダリアワイン'],
+    w1:['アフロディーテ（美の女神）伝説発祥の地','ハルミチーズは世界唯一のキプロス特産品','地中海で3番目に大きい島'],
+    bmc:'約550円（€3.60）',mofa:'https://www.mofa.go.jp/mofaj/area/cyprus/index.html'},
+  'モンテネグロ':{en:'Montenegro',flag:'🇲🇪',cont:'ヨーロッパ',cap:'ポドゴリツァ',pop:'約62万人',area:'1.4万km²',currency:'ユーロ（EUR）',lat:42.44,lon:19.26,
+    ind:['観光','エネルギー','農業','製造業','IT'],
+    tour:['コトル旧市街（世界遺産）','ドゥルミトル国立公園','スカダル湖','ブドヴァ旧市街','タラ川渓谷'],
+    food:['プルシュット（生ハム）','ニェグシ産チーズ','カチャマク（トウモロコシ粥）','ヤンジャ（子羊料理）','モンテネグロワイン'],
+    w1:['世界初の生態学的国家を宣言した国','タラ川渓谷はヨーロッパ最深の峡谷','コトルは世界遺産の中世都市'],
+    bmc:'約320円（€2.10）',mofa:'https://www.mofa.go.jp/mofaj/area/montenegro/index.html'},
+  'ボスニア・ヘルツェゴビナ':{en:'Bosnia and Herzegovina',flag:'🇧🇦',cont:'ヨーロッパ',cap:'サラエボ',pop:'約330万人',area:'5.1万km²',currency:'マルク（BAM）',lat:43.85,lon:18.36,
+    ind:['製造業','農業','観光','林業','IT'],
+    tour:['サラエボ旧市街','モスタルのスタリ・モスト橋（世界遺産）','コニツ','ヤホリナスキー場','プリヴィ渓谷'],
+    food:['チェヴァピ（ミンチ肉焼き）','ブレク（肉パイ）','ピタ（パイ）','ボサンスカカファ（コーヒー）','バクラヴァ'],
+    w1:['モスタル橋は「再統合の象徴」として世界遺産','3民族（ムスリム・クロアチア・セルビア）が共存','ネレトヴァ川は世界有数のカヤック競技場'],
+    bmc:'約300円（KM2.10）',mofa:'https://www.mofa.go.jp/mofaj/area/bosnia_h/index.html'},
+  'アルバニア':{en:'Albania',flag:'🇦🇱',cont:'ヨーロッパ',cap:'ティラナ',pop:'約290万人',area:'2.9万km²',currency:'レク（ALL）',lat:41.33,lon:19.83,
+    ind:['農業','観光','石油','製造業','IT'],
+    tour:['ブトリント遺跡（世界遺産）','ジロカストラ旧市街','サランダのビーチ','ルンクムベガ峡谷','ティラナ旧市街'],
+    food:['タヴェ・コシ（ヨーグルト入り羊肉）','ブレク（パイ）','フェルゲッサ（チーズ料理）','コルナーフィスク（魚料理）','ライキ（蒸留酒）'],
+    w1:['マザー・テレサの出身地（アルバニア系）','イーグルの国（国旗に双頭のワシ）','欧州最後のフロンティアと呼ばれる秘境'],
+    bmc:'約250円（L320）',mofa:'https://www.mofa.go.jp/mofaj/area/albania/index.html'},
+  '北マケドニア':{en:'North Macedonia',flag:'🇲🇰',cont:'ヨーロッパ',cap:'スコピエ',pop:'約210万人',area:'2.6万km²',currency:'デナル（MKD）',lat:42.00,lon:21.43,
+    ind:['農業','製造業','鉄鋼','観光','IT'],
+    tour:['オフリド湖（世界遺産）','スコピエ旧市街','マヴロヴォ国立公園','クルシェヴォ','プレスパ湖'],
+    food:['タヴチェグラフチェ（豆煮込み）','ムサカ','アジュヴァル（野菜ペースト）','ナレクヴィ（チーズ料理）','マケドニアワイン'],
+    w1:['オフリドは「バルカンのエルサレム」と呼ばれる','アレキサンダー大王（マケドニア王）の故郷','オフリド湖は世界最古の湖のひとつ'],
+    bmc:'約280円（den220）',mofa:'https://www.mofa.go.jp/mofaj/area/macedonia/index.html'},
+  'コソボ':{en:'Kosovo',flag:'🇽🇰',cont:'ヨーロッパ',cap:'プリシュティナ',pop:'約180万人',area:'1.1万km²',currency:'ユーロ（EUR）',lat:42.67,lon:21.17,
+    ind:['鉱業（リグナイト）','農業','建設','IT','観光'],
+    tour:['デチャニ修道院（世界遺産）','ペーチ旧市街','シャル山脈','プリシュティナ','ドラガシュ'],
+    food:['フリア（揚げパン）','タヴェ（肉と野菜のグリル）','コソボスープ','ペトロフチャ（スイーツ）','ラキヤ'],
+    w1:['2008年に独立宣言した最も若い国のひとつ','デチャニ修道院は世界遺産','ヨーロッパ最大の石炭埋蔵量'],
+    bmc:'約270円（€1.79）',mofa:'https://www.mofa.go.jp/mofaj/area/kosovo/index.html'},
+  'ラトビア':{en:'Latvia',flag:'🇱🇻',cont:'ヨーロッパ',cap:'リガ',pop:'約185万人',area:'6.5万km²',currency:'ユーロ（EUR）',lat:56.95,lon:24.11,
+    ind:['IT','木材','食品','製造業','金融'],
+    tour:['リガ旧市街（世界遺産）','ユールマラビーチ','シグルダ','チェーシス','ルンダーレ宮殿'],
+    food:['ライ麦パン（ルプマイゼ）','ジャウナイス・スキャビス（ビーツ料理）','リーガスバルサム（薬草酒）','スモークフィッシュ','キーセリス（プリン）'],
+    w1:['世界最古の国旗デザインのひとつ（1280年頃）','リガの旧市街はユーゲントシュティール建築の宝庫','バスケットボール選手の輩出率がヨーロッパ最高クラス'],
+    bmc:'約550円（€3.60）',mofa:'https://www.mofa.go.jp/mofaj/area/latvia/index.html'},
+  'リトアニア':{en:'Lithuania',flag:'🇱🇹',cont:'ヨーロッパ',cap:'ビリニュス',pop:'約280万人',area:'6.5万km²',currency:'ユーロ（EUR）',lat:54.69,lon:25.28,
+    ind:['IT','製造業','農業','物流','エネルギー'],
+    tour:['ビリニュス旧市街（世界遺産）','クルシュ砂州（世界遺産）','トラカイ城','カウナス旧市街','十字架の丘'],
+    food:['ツェペリナイ（じゃがいも餃子）','チャルニュイ・スリュブタイ（黒パン）','シャルティバルシュチャイ（冷製ビーツスープ）','クゲリス（じゃがいも料理）','ミードゥス（蜂蜜酒）'],
+    w1:['ヨーロッパの地理的中心地がある国','十字架の丘は世界唯一・数十万本の十字架が並ぶ','バスケットボールが国民的スポーツ'],
+    bmc:'約540円（€3.55）',mofa:'https://www.mofa.go.jp/mofaj/area/lithuania/index.html'},
+  'エストニア':{en:'Estonia',flag:'🇪🇪',cont:'ヨーロッパ',cap:'タリン',pop:'約136万人',area:'4.5万km²',currency:'ユーロ（EUR）',lat:59.44,lon:24.75,
+    ind:['IT（デジタル国家）','製造業','林業','農業','観光'],
+    tour:['タリン旧市街（世界遺産）','ラヘマー国立公園','サーレマー島','タルトゥ大学','パルヌビーチ'],
+    food:['ヴェリヴォルスト（血のソーセージ）','ハペンカール（サワーキャベツ）','スモークスプラット（魚）','モルスリーブ（蜂蜜ジャム）','エストニアビール'],
+    w1:['世界初の電子政府を実現した「デジタル国家」','スカイプはエストニアで生まれた','投票率世界最高水準のオンライン選挙を実施'],
+    bmc:'約570円（€3.70）',mofa:'https://www.mofa.go.jp/mofaj/area/estonia/index.html'},
+  'ベラルーシ':{en:'Belarus',flag:'🇧🇾',cont:'ヨーロッパ',cap:'ミンスク',pop:'約950万人',area:'20.8万km²',currency:'ルーブル（BYN）',lat:53.90,lon:27.57,
+    ind:['製造業（トラクター）','農業','IT','化学','食品'],
+    tour:['ミール城（世界遺産）','ネスヴィジ城（世界遺産）','ベロヴェージャの森（世界遺産）','ミンスク旧市街','ブレスト要塞'],
+    food:['ドラニキ（じゃがいもパンケーキ）','マチャンカ（豚肉クリーム煮）','ハロードニク（冷製ビーツスープ）','クヴァス（発酵飲料）','ベラルーシビール'],
+    w1:['ベロヴェージャの森はヨーロッパ最後の原生林','ヨーロッパバイソンの保護地として有名','チェルノブイリ原発事故で最も影響を受けた国'],
+    bmc:'約230円（Br3.20）',mofa:'https://www.mofa.go.jp/mofaj/area/belarus/index.html'},
+  'モルドバ':{en:'Moldova',flag:'🇲🇩',cont:'ヨーロッパ',cap:'キシナウ',pop:'約260万人',area:'3.4万km²',currency:'レイ（MDL）',lat:47.01,lon:28.86,
+    ind:['農業（ワイン）','食品','製造業','IT','観光'],
+    tour:['クリコヴァワインセラー（世界最大級）','オルヘイ・ヴェキ洞窟修道院','ティラスポリ','ソロカ要塞','チュフレシュティ村'],
+    food:['ママリガ（とうもろこし粥）','サルマーレ（ロールキャベツ）','プラチンダ（パイ）','モルドバワイン','ディヴィン（ブランデー）'],
+    w1:['世界最大のワインセラー（クリコヴァ）がある','ワインの品質がヨーロッパでも高く評価','ヒマワリ油の主要生産国'],
+    bmc:'約170円（L70）',mofa:'https://www.mofa.go.jp/mofaj/area/moldova/index.html'}
+,
+  'ジョージア':{en:'Georgia',flag:'🇬🇪',cont:'アジア',cap:'トビリシ',pop:'約370万人',area:'6.97万km²',currency:'ラリ（GEL）',lat:41.69,lon:44.83,
+    ind:['農業（ワイン）','観光','鉱業','製造業','IT'],
+    tour:['トビリシ旧市街','カズベキ山','シグナギ（ワインの町）','ムツヘタ（世界遺産）','ゲラティ修道院'],
+    food:['ヒンカリ（大きな餃子）','ハチャプリ（チーズパン）','ムツヴァディ（BBQ）','サツィヴィ（クルミソース鶏）','ジョージアワイン'],
+    w1:['世界最古のワイン産地（8,000年前から）','ヒンカリは世界最大の餃子のひとつ','コーカサス山脈の絶景が楽しめる'],
+    bmc:'約350円（₾9.50）',mofa:'https://www.mofa.go.jp/mofaj/area/georgia/index.html'},
+  'アルメニア':{en:'Armenia',flag:'🇦🇲',cont:'アジア',cap:'エレバン',pop:'約290万人',area:'3万km²',currency:'ドラム（AMD）',lat:40.18,lon:44.51,
+    ind:['IT','鉱業','農業','観光','ダイヤモンド加工'],
+    tour:['ゲハルト修道院（世界遺産）','アラガツ山','ホル・ヴィラップ修道院','エレバン旧市街','セヴァン湖'],
+    food:['ドルマ（ブドウの葉ロール）','ホラヴァツ（BBQ）','マッツン（ヨーグルト）','アルメニアブランデー','ラヴァシュ（薄焼きパン）'],
+    w1:['世界初のキリスト教国家（301年）','ラヴァシュはユネスコ無形文化遺産','アララト山はノアの方舟伝説の山'],
+    bmc:'約260円（AMD1,100）',mofa:'https://www.mofa.go.jp/mofaj/area/armenia/index.html'},
+  'アゼルバイジャン':{en:'Azerbaijan',flag:'🇦🇿',cont:'アジア',cap:'バクー',pop:'約1,000万人',area:'8.66万km²',currency:'マナト（AZN）',lat:40.41,lon:49.87,
+    ind:['石油・天然ガス','農業','観光','鉱業','IT'],
+    tour:['バクー旧市街（世界遺産）','炎の塔','ゴブスタン岩絵（世界遺産）','シェキのハン宮殿','カスピ海'],
+    food:['ピティ（羊肉スープ）','ドシャバ（ザクロソース）','ドルマ（ブドウの葉ロール）','アゼルバイジャン紅茶','バクラヴァ'],
+    w1:['「炎の国」とも呼ばれる自然ガスの噴出地','カスピ海沿岸の石油産出国','ザクロはアゼルバイジャンの国民的果物'],
+    bmc:'約280円（₼1.70）',mofa:'https://www.mofa.go.jp/mofaj/area/azerbaijan/index.html'},
+  'カザフスタン':{en:'Kazakhstan',flag:'🇰🇿',cont:'アジア',cap:'アスタナ',pop:'約1,900万人',area:'272万km²',currency:'テンゲ（KZT）',lat:51.18,lon:71.45,
+    ind:['石油・天然ガス','鉱業（ウラン）','農業','製造業','IT'],
+    tour:['アルマティ','バイテレク（アスタナのシンボル）','チャリン峡谷','コルサイ湖','バイコヌール宇宙基地'],
+    food:['ベシュバルマク（羊肉・麺料理）','クイルダク（内臓煮込み）','サムサ（肉まんじゅう）','クムス（馬乳酒）','バウルサク（揚げパン）'],
+    w1:['世界最大の内陸国','ウランの生産量が世界一（世界の約40%）','バイコヌール宇宙基地からガガーリンが宇宙へ'],
+    bmc:'約310円（₸1,400）',mofa:'https://www.mofa.go.jp/mofaj/area/kazakhstan/index.html'},
+  'ウズベキスタン':{en:'Uzbekistan',flag:'🇺🇿',cont:'アジア',cap:'タシケント',pop:'約3,500万人',area:'44.9万km²',currency:'スム（UZS）',lat:41.30,lon:69.24,
+    ind:['農業（綿花）','天然ガス','観光','鉱業','製造業'],
+    tour:['サマルカンド（世界遺産）','ブハラ（世界遺産）','ヒヴァ（世界遺産）','タシケント','レギスタン広場'],
+    food:['プロフ（羊肉ピラフ）','サムサ（肉まんじゅう）','ラグマン（麺料理）','シャシリク（串焼き）','ノン（パン）'],
+    w1:['シルクロードの中心地（サマルカンドは古代の交易都市）','ティムール帝国の首都レギスタン広場は世界屈指の美しい広場','綿花の一大産地（「白い金」）'],
+    bmc:'約200円（UZS12,000）',mofa:'https://www.mofa.go.jp/mofaj/area/uzbekistan/index.html'},
+  'トルクメニスタン':{en:'Turkmenistan',flag:'🇹🇲',cont:'アジア',cap:'アシガバット',pop:'約600万人',area:'48.8万km²',currency:'マナト（TMT）',lat:37.95,lon:58.38,
+    ind:['天然ガス','石油','農業（綿花）','化学','建設'],
+    tour:['ダルヴァザ・ガスクレーター（地獄の門）','マルギアナの遺跡','ニサの遺跡（世界遺産）','アシガバット白亜の都市','アワザリゾート'],
+    food:['ショルバ（羊肉スープ）','マンティ（蒸し餃子）','ピラフ','ガトゥル（薄焼きパン）','チャル（ヨーグルト系飲料）'],
+    w1:['「地獄の門」は60年以上燃え続けるガス噴出地','世界最大の天然ガス埋蔵量のひとつ','アシガバットは白大理石建築で「世界一白い都市」'],
+    bmc:'約170円（T3.00）',mofa:'https://www.mofa.go.jp/mofaj/area/turkmenistan/index.html'},
+  'タジキスタン':{en:'Tajikistan',flag:'🇹🇯',cont:'アジア',cap:'ドゥシャンベ',pop:'約1,000万人',area:'14.3万km²',currency:'ソモニ（TJS）',lat:38.56,lon:68.77,
+    ind:['農業（綿花）','アルミニウム','水力発電','鉱業','観光'],
+    tour:['パミール高原','イスカンダルクル湖','ヒサール要塞','ルダキ公園','タジク国立公園'],
+    food:['クルトブ（パン料理）','オシュ（ピラフ）','マンティ（蒸し餃子）','シャシリク（串焼き）','ナン（パン）'],
+    w1:['パミール高原は「世界の屋根」（平均標高3,000m以上）','水力発電ポテンシャルがアジア最大クラス','ヌレク・ダムはかつて世界最高のダム'],
+    bmc:'約200円（TJS11）',mofa:'https://www.mofa.go.jp/mofaj/area/tajikistan/index.html'},
+  'キルギス':{en:'Kyrgyzstan',flag:'🇰🇬',cont:'アジア',cap:'ビシュケク',pop:'約680万人',area:'20万km²',currency:'ソム（KGS）',lat:42.87,lon:74.60,
+    ind:['農業','鉱業（金）','観光','水力発電','繊維'],
+    tour:['イシク・クル湖','ソン・クル湖','タシュ・ラバット隊商宿','アラ・アルチャ国立公園','オシュのバザール'],
+    food:['ベシュバルマク（肉と麺）','クムス（馬乳酒）','マンティ（蒸し餃子）','ラグマン（麺料理）','チュチュク（ソーセージ）'],
+    w1:['遊牧民族の伝統文化が現在も残る国','イシク・クル湖は世界第2位の高山湖','マナス叙事詩はユネスコ無形文化遺産（世界最長の叙事詩のひとつ）'],
+    bmc:'約220円（с190）',mofa:'https://www.mofa.go.jp/mofaj/area/kyrgyz/index.html'},
+  'モンゴル':{en:'Mongolia',flag:'🇲🇳',cont:'アジア',cap:'ウランバートル',pop:'約340万人',area:'156万km²',currency:'トゥグルグ（MNT）',lat:47.91,lon:106.88,
+    ind:['鉱業（石炭・銅・金）','農業（遊牧）','観光','エネルギー','IT'],
+    tour:['ゴビ砂漠','テレルジ国立公園','カラコルム（旧都）','チンギス・ハーン像','ホブスグル湖'],
+    food:['ホルホグ（羊の丸焼き）','ツォイワン（炒め麺）','ボーズ（蒸し餃子）','アイラグ（馬乳酒）','ボルツ（干し肉）'],
+    w1:['チンギス・ハーンが世界最大の陸上帝国を築いた国','世界最大の非接続・内陸国','一人当たりの馬の数が世界一'],
+    bmc:'約340円（₮6,000）',mofa:'https://www.mofa.go.jp/mofaj/area/mongolia/index.html'},
+  'ブータン':{en:'Bhutan',flag:'🇧🇹',cont:'アジア',cap:'ティンプー',pop:'約75万人',area:'3.8万km²',currency:'ニュルタム（BTN）',lat:27.47,lon:89.64,
+    ind:['水力発電','農業','観光（限定）','林業','手工芸'],
+    tour:['パロ・タクツァン（虎の巣寺院）','プナカ・ゾン','チョモラリ山','ハ渓谷','ブムタン'],
+    food:['エマダツィ（唐辛子チーズ）','ジャシャマル（鶏肉スープ）','レッドライス','モモ（蒸し餃子）','バタートティー'],
+    w1:['GNH（国民総幸福量）を世界で初めて採用した国','世界一入国が難しい国のひとつ（観光税が高額）','カーボンネガティブ（CO2吸収が排出を上回る）な国'],
+    bmc:'約310円（Nu28）',mofa:'https://www.mofa.go.jp/mofaj/area/bhutan/index.html'},
+  'ラオス':{en:'Laos',flag:'🇱🇦',cont:'アジア',cap:'ビエンチャン',pop:'約740万人',area:'23.7万km²',currency:'キープ（LAK）',lat:17.97,lon:102.60,
+    ind:['水力発電','農業','観光','鉱業','林業'],
+    tour:['ルアンパバーン（世界遺産）','ワット・プー（世界遺産）','シーパンドン（4000の島）','バンビエン','クアンシーの滝'],
+    food:['ラープ（肉のハーブサラダ）','カオニャオ（もち米）','タムマーク・フーン（青パパイヤサラダ）','オーラム（シチュー）','ビアラオ（ビール）'],
+    w1:['ルアンパバーンは「アジアで最も美しい町」のひとつ','世界で最も多くの爆弾が投下された国（ベトナム戦争）','メコン川沿いの自然が圧倒的に美しい内陸国'],
+    bmc:'約250円（₭17,000）',mofa:'https://www.mofa.go.jp/mofaj/area/laos/index.html'},
+  'ブルネイ':{en:'Brunei',flag:'🇧🇳',cont:'アジア',cap:'バンダル・スリ・ブガワン',pop:'約45万人',area:'0.577万km²',currency:'ブルネイドル（BND）',lat:4.94,lon:114.95,
+    ind:['石油・天然ガス','金融','観光','農業','IT'],
+    tour:['オマール・アリ・サイフッディン・モスク','イスタナ・ヌルル・イマン（王宮）','水上集落カンポン・アイール','ウル・トゥンブロン国立公園','テムブロン国立公園'],
+    food:['アンブヤット（サゴ椰子の粉料理）','ナシ・ケラブ（青いご飯）','ミーゴレン（炒め麺）','ブルネイ風カレー','セルンダン（スナック）'],
+    w1:['石油・天然ガスの収入で国民の医療・教育が無料','スルタン（国王）の宮殿は世界最大の居住用建物のひとつ','国民はほぼ税金なし・医療無料の高福祉国家'],
+    bmc:'約540円（B$3.99）',mofa:'https://www.mofa.go.jp/mofaj/area/brunei/index.html'},
+  '東ティモール':{en:'Timor-Leste',flag:'🇹🇱',cont:'アジア',cap:'ディリ',pop:'約130万人',area:'1.49万km²',currency:'米ドル（USD）',lat:-8.56,lon:125.58,
+    ind:['石油・天然ガス','農業','観光','漁業','コーヒー'],
+    tour:['クリスト・レイ像','ジャコ島','タタマイラウ山','ディリ旧市街','アタウロ島'],
+    food:['ブ・フォホ（豚肉・野菜煮込み）','タロイモ料理','イカン（魚料理）','東ティモールコーヒー','ライスポリッジ'],
+    w1:['21世紀最初の独立国家（2002年）','東ティモールコーヒーは世界的に評価が高い','アジア最貧国のひとつだが豊かな自然が魅力'],
+    bmc:'約450円（$2.99）',mofa:'https://www.mofa.go.jp/mofaj/area/easttimor/index.html'},
+  'カタール':{en:'Qatar',flag:'🇶🇦',cont:'アジア',cap:'ドーハ',pop:'約290万人',area:'1.16万km²',currency:'リヤル（QAR）',lat:25.29,lon:51.53,
+    ind:['天然ガス（LNG）','石油','金融','建設','観光'],
+    tour:['ドーハ・コルニッシュ','ムシェイレブ博物館','ズバラ要塞（世界遺産）','カタール国立博物館','アル・ワクラ旧市街'],
+    food:['マチュブス（スパイスご飯）','ハリース（小麦粥）','シャワルマ','ルーム（ラクダ肉）','カタールコーヒー（カルダモン入り）'],
+    w1:['一人当たりGDPが世界最高水準のひとつ','2022年FIFAワールドカップ開催国','天然ガスの輸出量が世界トップクラス'],
+    bmc:'約540円（QR 13）',mofa:'https://www.mofa.go.jp/mofaj/area/qatar/index.html'},
+  'クウェート':{en:'Kuwait',flag:'🇰🇼',cont:'アジア',cap:'クウェート',pop:'約440万人',area:'1.78万km²',currency:'ディナール（KWD）',lat:29.37,lon:47.98,
+    ind:['石油','金融','建設','貿易','サービス'],
+    tour:['クウェートタワー','グランドモスク','ソウクシャルク（ショッピング）','タロウフ博物館','クウェート湾岸'],
+    food:['マチュブス（スパイスご飯）','ハリース（小麦粥）','ガウジ（羊の丸焼き）','マルグーグ（スープ）','クウェートコーヒー'],
+    w1:['石油埋蔵量が世界6位','一人当たりGDPが世界有数の産油国','1990年のイラク侵攻から湾岸戦争の引き金となった'],
+    bmc:'約560円（KD 1.00）',mofa:'https://www.mofa.go.jp/mofaj/area/kuwait/index.html'},
+  'バーレーン':{en:'Bahrain',flag:'🇧🇭',cont:'アジア',cap:'マナーマ',pop:'約150万人',area:'0.0765万km²',currency:'ディナール（BHD）',lat:26.22,lon:50.59,
+    ind:['石油精製','金融','観光','航空','建設'],
+    tour:['バーレーン要塞（世界遺産）','ツリー・オブ・ライフ','バーレーン国立博物館','マナーマ旧市街','F1バーレーングランプリ'],
+    food:['マチュブス（スパイスご飯）','ムハンマル（甘い米）','ガウジ（羊の丸焼き）','ハリース（小麦粥）','カフワ（アラビアコーヒー）'],
+    w1:['世界初の産油国（中東で最初に石油が発見された）','F1バーレーングランプリの開催地','ツリー・オブ・ライフは砂漠で400年以上生き続ける木'],
+    bmc:'約580円（BD 1.20）',mofa:'https://www.mofa.go.jp/mofaj/area/bahrain/index.html'},
+  'オマーン':{en:'Oman',flag:'🇴🇲',cont:'アジア',cap:'マスカット',pop:'約450万人',area:'30.95万km²',currency:'リアル（OMR）',lat:23.61,lon:58.59,
+    ind:['石油・天然ガス','観光','農業（ナツメヤシ）','漁業','製造業'],
+    tour:['マスカット旧市街','ワヒバ砂漠','ニズワ要塞','フィヤルド（フィヨルド）','ムサンダム半島'],
+    food:['シュワ（羊の丸焼き）','マジブース（スパイスご飯）','ハルワ（オマーン菓子）','ナツメヤシ料理','カフワ（アラビアコーヒー）'],
+    w1:['フランキンセンス（乳香）は世界的に有名なオマーン産スパイス','アラビアオリックスの保護で有名（一度絶滅→復活）','アラビア半島最古の文明遺跡がある'],
+    bmc:'約570円（OMR 1.50）',mofa:'https://www.mofa.go.jp/mofaj/area/oman/index.html'},
+  'イエメン':{en:'Yemen',flag:'🇾🇪',cont:'アジア',cap:'サナア',pop:'約3,300万人',area:'52.8万km²',currency:'リアル（YER）',lat:15.35,lon:44.21,
+    ind:['石油','農業','漁業','観光（内戦前）'],
+    tour:['サナア旧市街（世界遺産）','シバーム（砂漠のマンハッタン）','ソコトラ島（世界遺産）','アデン旧港','タイズ'],
+    food:['スール（チキン煮込み）','マンドゥス（スパイスご飯）','サルータ（唐辛子ペースト）','フルール（豆料理）','シャイ（ショウガ紅茶）'],
+    w1:['ソコトラ島は「インド洋のガラパゴス」（固有種が多い）','シバームは「世界最古の摩天楼都市」（泥レンガの高層建築）','コーヒー発祥に関係する「モカ」港がある'],
+    bmc:'約150円（﷼ 600）',mofa:'https://www.mofa.go.jp/mofaj/area/yemen/index.html'},
+  'ヨルダン':{en:'Jordan',flag:'🇯🇴',cont:'アジア',cap:'アンマン',pop:'約1,030万人',area:'8.9万km²',currency:'ディナール（JOD）',lat:31.95,lon:35.93,
+    ind:['観光','リン鉱石','農業','製造業','IT'],
+    tour:['ペトラ遺跡（世界の新7不思議）','ワディ・ラム（火星のような砂漠）','死海','ジェラシュ遺跡','アカバのダイビング'],
+    food:['マンサフ（羊肉ヨーグルト煮込み）','ファラフェル','フムス','ムサッカン（鶏肉パン）','カナーファ（チーズスイーツ）'],
+    w1:['ペトラ遺跡は世界の新七不思議のひとつ','死海の南端がある国（地球最低地点）','ワディ・ラムは映画「アラビアのロレンス」の舞台'],
+    bmc:'約480円（JD 2.40）',mofa:'https://www.mofa.go.jp/mofaj/area/jordan/index.html'},
+  'レバノン':{en:'Lebanon',flag:'🇱🇧',cont:'アジア',cap:'ベイルート',pop:'約680万人',area:'1.04万km²',currency:'ポンド（LBP）',lat:33.89,lon:35.50,
+    ind:['金融','観光','農業','サービス','教育'],
+    tour:['ベイルート旧市街','バールベック神殿（世界遺産）','カナーン渓谷','ビブロス（世界最古の都市のひとつ）','スキーリゾート（ファルヤ）'],
+    food:['フムス（発祥地のひとつ）','タブーレ（パセリサラダ）','キッべ（肉料理）','バクラヴァ','アラック（蒸留酒）'],
+    w1:['フェニキア文明（現在のアルファベットの起源）の発祥地','「中東のパリ」と呼ばれたベイルート','世界最古の継続使用都市ビブロスがある'],
+    bmc:'約230円（LBP 89,000）',mofa:'https://www.mofa.go.jp/mofaj/area/lebanon/index.html'},
+  'シリア':{en:'Syria',flag:'🇸🇾',cont:'アジア',cap:'ダマスカス',pop:'約2,200万人',area:'18.5万km²',currency:'ポンド（SYP）',lat:33.51,lon:36.29,
+    ind:['農業','石油','観光（内戦前）','繊維','食品'],
+    tour:['ダマスカス旧市街（世界遺産）','パルミラ遺跡','アレッポ旧市街（世界遺産）','クラック・デ・シュヴァリエ','ボスラ遺跡'],
+    food:['シャワルマ','キッべ（肉料理）','フムス','タブーレ','バクラヴァ'],
+    w1:['ダマスカスは世界最古の継続使用首都のひとつ','シリア内戦（2011〜）により多大な被害','パルミラはシルクロードの重要な交易都市だった'],
+    bmc:'約100円（SYP 2,500）',mofa:'https://www.mofa.go.jp/mofaj/area/syria/index.html'},
+  'イラク':{en:'Iraq',flag:'🇮🇶',cont:'アジア',cap:'バグダッド',pop:'約4,300万人',area:'43.8万km²',currency:'ディナール（IQD）',lat:33.34,lon:44.40,
+    ind:['石油','農業','建設','製造業'],
+    tour:['バビロン遺跡（世界遺産）','ウル遺跡','エルビル城','ナジャフ聖地','バグダッド博物館'],
+    food:['マスゴーフ（焼き魚）','クジ（羊の丸焼き）','ブリヤーニ（スパイスご飯）','サマブスク（揚げ餃子）','チャイ（紅茶）'],
+    w1:['メソポタミア文明（世界最古の文明）発祥の地','楔形文字が発明された地','チグリス川とユーフラテス川が流れる「文明の揺り籠」'],
+    bmc:'約240円（IQD 2,100）',mofa:'https://www.mofa.go.jp/mofaj/area/iraq/index.html'},
+  'アフガニスタン':{en:'Afghanistan',flag:'🇦🇫',cont:'アジア',cap:'カブール',pop:'約4,000万人',area:'65.2万km²',currency:'アフガニー（AFN）',lat:34.53,lon:69.17,
+    ind:['農業','鉱業（希少金属）','天然ガス','絨毯','ザクロ'],
+    tour:['バンデ・アミール湖','ジャーム（世界遺産）','バーミヤン渓谷（世界遺産）','カブール旧市街','スピン・ガル山'],
+    food:['カブリプロウ（羊肉ピラフ）','アシャク（餃子）','マントゥ（蒸し餃子）','ボラーニ（焼きパン）','チャイ（お茶）'],
+    w1:['ラピスラズリ（青い宝石）の産地として古代から有名','シルクロードの要衝として東西文明の交差点','ザクロの原産地のひとつ'],
+    bmc:'約130円（؋ 60）',mofa:'https://www.mofa.go.jp/mofaj/area/afghanistan/index.html'}
+,
+  'アルジェリア':{en:'Algeria',flag:'🇩🇿',cont:'アフリカ',cap:'アルジェ',pop:'約4,400万人',area:'238万km²',currency:'ディナール（DZD）',lat:36.74,lon:3.06,
+    ind:['石油・天然ガス','農業','建設','製造業','観光'],
+    tour:['タッシリ・ナジェール（世界遺産）','ジェミラ遺跡（世界遺産）','アルジェ旧市街','サハラ砂漠','ティムガード遺跡'],
+    food:['クスクス（北アフリカ版）','シャクシューカ（卵トマト煮）','メキャ（羊のシチュー）','バクラヴァ','ミント緑茶'],
+    w1:['アフリカ最大の国土面積','サハラ砂漠の大部分を占める国','タッシリの岩絵は1万2千年前の先史美術遺産'],
+    bmc:'約170円（DA95）',mofa:'https://www.mofa.go.jp/mofaj/area/algeria/index.html'},
+  'チュニジア':{en:'Tunisia',flag:'🇹🇳',cont:'アフリカ',cap:'チュニス',pop:'約1,200万人',area:'16.4万km²',currency:'ディナール（TND）',lat:36.82,lon:10.17,
+    ind:['観光','農業（オリーブ）','製造業','エネルギー','IT'],
+    tour:['カルタゴ遺跡（世界遺産）','シディ・ブ・サイド（青と白の街）','サハラ砂漠（スターウォーズ撮影地）','エル・ジェム（ローマ円形劇場）','チュニス旧市街'],
+    food:['クスクス','ブリク（揚げ餃子）','シャクシューカ','ハリッサ（唐辛子ペースト）','ミント緑茶'],
+    w1:['スターウォーズの撮影地（タトゥーイン）','カルタゴはローマと覇を競った古代大国','アラブの春（2010年）が始まった国'],
+    bmc:'約290円（DT3.90）',mofa:'https://www.mofa.go.jp/mofaj/area/tunisia/index.html'},
+  'リビア':{en:'Libya',flag:'🇱🇾',cont:'アフリカ',cap:'トリポリ',pop:'約690万人',area:'175万km²',currency:'ディナール（LYD）',lat:32.90,lon:13.18,
+    ind:['石油・天然ガス','農業','建設','製造業'],
+    tour:['レプティス・マグナ遺跡（世界遺産）','サブラタ遺跡（世界遺産）','サハラ砂漠','トリポリ旧市街','アクバルの岩絵'],
+    food:['クスクス','バジン（大麦粥）','アシーダ（粥）','ハリーサ（スパイス料理）','ミント緑茶'],
+    w1:['レプティス・マグナはローマ帝国最大の遺跡のひとつ','アフリカで最多の石油埋蔵量（サハラ地域）','砂漠が国土の95%を占める'],
+    bmc:'約200円（LD 1.50）',mofa:'https://www.mofa.go.jp/mofaj/area/libya/index.html'},
+  'スーダン':{en:'Sudan',flag:'🇸🇩',cont:'アフリカ',cap:'ハルツーム',pop:'約4,400万人',area:'187万km²',currency:'ポンド（SDG）',lat:15.55,lon:32.53,
+    ind:['農業','石油','鉱業（金）','畜産','製造業'],
+    tour:['メロエのピラミッド（世界遺産）','ナイル川','ハルツーム旧市街','ゲベル・バルカル','ナカ遺跡'],
+    food:['アシーダ（粥）','フール（豆料理）','カワーレ（牛足スープ）','シェイア（羊肉焼き）','ショルバ（スープ）'],
+    w1:['エジプトより多くのピラミッドがある国（255基）','ナイル川の青ナイルと白ナイルが合流する国','世界最大の砂漠サハラを持つ国のひとつ'],
+    bmc:'約120円（SDG 550）',mofa:'https://www.mofa.go.jp/mofaj/area/sudan/index.html'},
+  '南スーダン':{en:'South Sudan',flag:'🇸🇸',cont:'アフリカ',cap:'ジュバ',pop:'約1,100万人',area:'64万km²',currency:'ポンド（SSP）',lat:4.86,lon:31.57,
+    ind:['石油','農業','畜産','林業'],
+    tour:['ニムレ国立公園','バンディンギロ国立公園','ジュバ旧市街','ナイル川クルーズ','ボマ国立公園'],
+    food:['アシーダ（粥）','キサラ（発酵パン）','ウガリ（とうもろこし料理）','フール（豆料理）','スープカレー'],
+    w1:['2011年独立の世界最新の国のひとつ','世界最大の淡水湿地帯（スッド）がある','野生動物の大移動があるナイル川流域'],
+    bmc:'約150円（SSP 650）',mofa:'https://www.mofa.go.jp/mofaj/area/s_sudan/index.html'},
+  'ウガンダ':{en:'Uganda',flag:'🇺🇬',cont:'アフリカ',cap:'カンパラ',pop:'約4,800万人',area:'24.1万km²',currency:'シリング（UGX）',lat:0.32,lon:32.58,
+    ind:['農業（コーヒー）','観光','漁業','製造業','IT'],
+    tour:['ブウィンディ原生国立公園（ゴリラトレッキング）','ムルチソン滝','ヴィクトリア湖','クイーンエリザベス国立公園','ジンジャ（ナイル川源流）'],
+    food:['マトケ（バナナ蒸し料理）','ロラム（豆煮込み）','ニャマチョマ（焼き肉）','ウガリ','ウガンダコーヒー'],
+    w1:['ナイル川の源流（ヴィクトリア湖）がある国','マウンテンゴリラ生息地の半数がウガンダにある','コーヒー輸出はアフリカトップクラス'],
+    bmc:'約340円（USh 5,000）',mofa:'https://www.mofa.go.jp/mofaj/area/uganda/index.html'},
+  'ルワンダ':{en:'Rwanda',flag:'🇷🇼',cont:'アフリカ',cap:'キガリ',pop:'約1,350万人',area:'2.6万km²',currency:'フラン（RWF）',lat:-1.94,lon:30.06,
+    ind:['農業（コーヒー・紅茶）','観光','IT','製造業','建設'],
+    tour:['ヴォルカノ国立公園（ゴリラトレッキング）','キガリ学術センター','キブ湖','アカゲラ国立公園','ニャマタ記念館'],
+    food:['ウガリ（とうもろこし料理）','イサンボザ（豆シチュー）','ムツズィ（サツマイモ料理）','ブロシェット（串焼き）','ルワンダコーヒー'],
+    w1:['1994年のジェノサイドから奇跡の復興を遂げた国','プラスチック袋を世界で最初に全面禁止した国','女性議員の割合が世界一（国会の約60%が女性）'],
+    bmc:'約380円（RWF 3,000）',mofa:'https://www.mofa.go.jp/mofaj/area/rwanda/index.html'},
+  'コンゴ民主共和国':{en:'DR Congo',flag:'🇨🇩',cont:'アフリカ',cap:'キンシャサ',pop:'約9,700万人',area:'234万km²',currency:'フラン（CDF）',lat:-4.32,lon:15.32,
+    ind:['鉱業（コバルト・コルタン）','農業','林業','水力発電','石油'],
+    tour:['ヴィルンガ国立公園（オカピ・ゴリラ）','コンゴ川','ニラゴンゴ火山','カフジ・ビエガ国立公園','キンシャサ'],
+    food:['フフ（キャッサバ料理）','モアンベ（ヤシ油ソースチキン）','ポンドゥ（キャッサバ葉）','リクワメ（揚げバナナ）','ビタウメ（カタツムリ料理）'],
+    w1:['コバルトの世界産出量の約70%（電気自動車電池に必須）','世界第2位の熱帯雨林（コンゴ盆地）','コンゴ川はアフリカ最深の川（350m）'],
+    bmc:'約300円（CDF 5,000）',mofa:'https://www.mofa.go.jp/mofaj/area/congomin/index.html'},
+  'カメルーン':{en:'Cameroon',flag:'🇨🇲',cont:'アフリカ',cap:'ヤウンデ',pop:'約2,700万人',area:'47.5万km²',currency:'CFAフラン（XAF）',lat:3.85,lon:11.52,
+    ind:['農業（カカオ・コーヒー）','石油','林業','製造業','観光'],
+    tour:['カメルーン山','ワザ国立公園','バメンダ高原','クリビ海岸','フォンタインビルー滝'],
+    food:['ンドレ（葉野菜煮込み）','エル（揚げ芋）','ポソレ（スープ）','スカンコ（コーン料理）','カメルーン224（ビール）'],
+    w1:['サッカーW杯で「不屈のライオン」として有名（アフリカ代表の常連）','カカオ生産量がアフリカ有数','アフリカのコンパクト版（地形・気候が多様）'],
+    bmc:'約350円（XAF 1,500）',mofa:'https://www.mofa.go.jp/mofaj/area/cameroon/index.html'},
+  'セネガル':{en:'Senegal',flag:'🇸🇳',cont:'アフリカ',cap:'ダカール',pop:'約1,700万人',area:'19.7万km²',currency:'CFAフラン（XOF）',lat:14.72,lon:-17.46,
+    ind:['農業（落花生）','漁業','観光','採掘','IT'],
+    tour:['ゴレ島（世界遺産・奴隷貿易の歴史）','ダカール旧市街','サルームデルタ','独立記念碑','ニョコロコバ国立公園'],
+    food:['チェブジェン（魚のご飯料理・国民食）','ヤッサ（マリネ鶏料理）','マフェ（落花生ソース煮込み）','ティエバウギン（米料理）','ビサップ（ハイビスカスジュース）'],
+    w1:['アフリカ最西端に位置する国（ベルデ岬）','レスリング（ラム）がセネガル最大のスポーツ','ゴレ島は奴隷貿易の歴史を伝える世界遺産'],
+    bmc:'約340円（XOF 1,600）',mofa:'https://www.mofa.go.jp/mofaj/area/senegal/index.html'},
+  'コートジボワール':{en:"Cote d'Ivoire",flag:'🇨🇮',cont:'アフリカ',cap:'ヤムスクロ',pop:'約2,700万人',area:'32.2万km²',currency:'CFAフラン（XOF）',lat:6.82,lon:-5.28,
+    ind:['農業（カカオ・コーヒー）','採掘','製造業','建設','IT'],
+    tour:['ヤムスクロの平和の聖母大聖堂','アビジャン旧市街','コモエ国立公園','グラン・バッサム旧市街（世界遺産）','タイ国立公園'],
+    food:['アティエケ（キャッサバクスクス）','フトウ（もち米料理）','プラサス（スパイスソース）','マフェ','アビジャンのシーフード'],
+    w1:['カカオの生産量が世界一（世界の約40%）','アフリカ有数の経済大国','国名の通称は「象牙海岸」'],
+    bmc:'約340円（XOF 1,600）',mofa:'https://www.mofa.go.jp/mofaj/area/cote_d/index.html'},
+  'マダガスカル':{en:'Madagascar',flag:'🇲🇬',cont:'アフリカ',cap:'アンタナナリボ',pop:'約2,800万人',area:'58.7万km²',currency:'アリアリ（MGA）',lat:-18.92,lon:47.54,
+    ind:['農業（バニラ）','観光','鉱業','漁業','繊維'],
+    tour:['ツィンギ・デ・ベマラハ（世界遺産）','アベマール（バオバブ並木）','マソアラ国立公園','イサロ国立公園','ノシベ島'],
+    food:['ロマザヴァ（肉と野菜の煮込み）','フォアナナ（米粥）','ザカナ（魚料理）','セコ（揚げ肉）','バニラ料理'],
+    w1:['バニラの世界最大の産地（世界の約80%）','固有種の割合が世界最高（キツネザルなど）','世界4番目に大きい島で「別世界の島」'],
+    bmc:'約250円（Ar 9,000）',mofa:'https://www.mofa.go.jp/mofaj/area/madagascar/index.html'},
+  'モザンビーク':{en:'Mozambique',flag:'🇲🇿',cont:'アフリカ',cap:'マプト',pop:'約3,200万人',area:'80.2万km²',currency:'メティカル（MZN）',lat:-25.97,lon:32.59,
+    ind:['農業','漁業','天然ガス','採掘（ルビー）','観光'],
+    tour:['ザンベジ川','モザンビーク島（世界遺産）','ゴロンゴサ国立公園','バザルート諸島','マプトのビーチ'],
+    food:['ピリピリチキン（唐辛子鶏）','マタパ（キャッサバ葉）','シーフード料理','シマ（とうもろこし粥）','カシューナッツ料理'],
+    w1:['国旗にAK-47（銃）が描かれた唯一の国','モザンビーク島はポルトガル植民地時代の世界遺産','ルビーの産出量がアフリカ有数'],
+    bmc:'約230円（MT 170）',mofa:'https://www.mofa.go.jp/mofaj/area/mozambique/index.html'},
+  'ジンバブエ':{en:'Zimbabwe',flag:'🇿🇼',cont:'アフリカ',cap:'ハラレ',pop:'約1,560万人',area:'39.1万km²',currency:'ドル（ZWL）',lat:-17.83,lon:31.05,
+    ind:['農業','観光','鉱業（ダイヤモンド・金）','製造業','林業'],
+    tour:['ビクトリア滝（世界遺産）','ハンゲ国立公園（象の群れ）','グレート・ジンバブウェ遺跡','マトボ国立公園','カリバ湖'],
+    food:['サザ（とうもろこし粥）','ニャマ（グリル肉）','ムトーンベ（ほうれん草の煮込み）','ドンドー（発酵お粥）','マズンガ（揚げパン）'],
+    w1:['ビクトリア滝はアフリカ最大の滝（世界3大瀑布）','2000年代にハイパーインフレで100兆ドル札が存在した','グレート・ジンバブウェは14世紀の最大石造建造物'],
+    bmc:'約450円（$2.99）',mofa:'https://www.mofa.go.jp/mofaj/area/zimbabwe/index.html'},
+  'ボツワナ':{en:'Botswana',flag:'🇧🇼',cont:'アフリカ',cap:'ハボローネ',pop:'約260万人',area:'58.2万km²',currency:'プラ（BWP）',lat:-24.65,lon:25.91,
+    ind:['ダイヤモンド','観光','牛肉','製造業','金融'],
+    tour:['オカバンゴ・デルタ（世界遺産）','チョベ国立公園（象の群れ世界最多）','カラハリ砂漠','マカディカディ塩湖','モレミ自然保護区'],
+    food:['セスワ（牛肉叩き煮）','パップ（とうもろこし粥）','モラパ（ミルク料理）','ボラ（ミルクジャム）','マオゴ（ドライフルーツ）'],
+    w1:['チョベ国立公園は世界最大規模の象の生息地','ダイヤモンド生産量がアフリカ最多クラス','オカバンゴ・デルタは内陸に流れる珍しい川のデルタ'],
+    bmc:'約480円（P23）',mofa:'https://www.mofa.go.jp/mofaj/area/botswana/index.html'},
+  'ザンビア':{en:'Zambia',flag:'🇿🇲',cont:'アフリカ',cap:'ルサカ',pop:'約1,900万人',area:'75.3万km²',currency:'クワチャ（ZMW）',lat:-15.42,lon:28.28,
+    ind:['鉱業（銅）','農業','観光','水力発電','製造業'],
+    tour:['ビクトリア滝（ジンバブエとの国境）','サウス・ルワングワ国立公園','カフエ国立公園','バングウェウル湿地','ルサカ'],
+    food:['ンシマ（とうもろこし粥）','チカンダ（サツマイモケーキ）','ボヴァ（茹でキャッサバ）','ンタンジ（フライドフィッシュ）','マヴヘレ（発酵ミルク）'],
+    w1:['世界最大の銅産出国のひとつ（コッパーベルト）','ビクトリア滝の最良の展望台はザンビア側にある','リビングストンが探検したザンベジ川がある'],
+    bmc:'約330円（ZK 40）',mofa:'https://www.mofa.go.jp/mofaj/area/zambia/index.html'},
+  'マラウイ':{en:'Malawi',flag:'🇲🇼',cont:'アフリカ',cap:'リロングウェ',pop:'約2,000万人',area:'11.8万km²',currency:'クワチャ（MWK）',lat:-13.97,lon:33.79,
+    ind:['農業（タバコ）','観光','漁業','製造業','鉱業'],
+    tour:['マラウイ湖（世界遺産）','リフトバレー','ゾンバ高原','リボンウェ国立公園','ムランジェ山'],
+    food:['ウガリ（とうもろこし粥）','チャンボ（湖の魚料理）','ンシマ（粥）','ムブジ（ヤギ肉）','マラウイコーヒー'],
+    w1:['マラウイ湖は世界最多種の魚（800種以上）が生息','アフリカの心（The Warm Heart of Africa）と呼ばれる','シクリッドという熱帯魚の宝庫として世界的に有名'],
+    bmc:'約200円（MK 1,200）',mofa:'https://www.mofa.go.jp/mofaj/area/malawi/index.html'},
+  'ナミビア':{en:'Namibia',flag:'🇳🇦',cont:'アフリカ',cap:'ウィントフック',pop:'約260万人',area:'82.5万km²',currency:'ドル（NAD）',lat:-22.56,lon:17.08,
+    ind:['鉱業（ダイヤモンド・ウラン）','観光','農業','漁業','製造業'],
+    tour:['ナミブ砂漠（世界最古の砂漠）','エトーシャ国立公園','ソーサスフレイ（デューン45）','スワコプムント','フィッシュ・リバー・キャニオン'],
+    food:['ポトジコス（野鳥のシチュー）','ブラーイ（BBQ）','ビルトン（干し肉）','ウィルドブレット（野生動物肉）','カプス（腸の煮込み）'],
+    w1:['ナミブ砂漠は世界最古の砂漠（5,500万年）','デューン45は世界で最も美しい砂丘のひとつ','日本の国土の約2倍の面積に260万人しか住まない'],
+    bmc:'約430円（N$28）',mofa:'https://www.mofa.go.jp/mofaj/area/namibia/index.html'},
+  'アンゴラ':{en:'Angola',flag:'🇦🇴',cont:'アフリカ',cap:'ルアンダ',pop:'約3,500万人',area:'124万km²',currency:'クワンザ（AOA）',lat:-8.84,lon:13.23,
+    ind:['石油','ダイヤモンド','農業','建設','製造業'],
+    tour:['カランダウラ国立公園','ルアンダ旧市街','ナミベの砂漠','マランジェ州の滝','ビクトリア滝（隣国）'],
+    food:['ムアンバ（チキンシチュー）','フンジ（キャッサバ粥）','カルウル・デ・カマロン（海老煮込み）','ジンガ（干し魚）','ビンガラ（清涼飲料）'],
+    w1:['サブサハラ・アフリカ第3位の石油産出国','ダイヤモンド産出量がアフリカ有数','1975年の独立後に27年間内戦が続いた'],
+    bmc:'約300円（Kz1,200）',mofa:'https://www.mofa.go.jp/mofaj/area/angola/index.html'},
+  'コンゴ共和国':{en:'Republic of Congo',flag:'🇨🇬',cont:'アフリカ',cap:'ブラザビル',pop:'約590万人',area:'34.2万km²',currency:'CFAフラン（XAF）',lat:-4.27,lon:15.28,
+    ind:['石油','農業','林業','製造業','サービス'],
+    tour:['コンゴ川','ヌアバレ・ンドキ国立公園（世界遺産）','ブラザビル旧市街','オコウ渓谷','レフィニ自然保護区'],
+    food:['スンバラ（ローカスト豆調味料）','フフ（ヤムイモ料理）','チカンガ（キャッサバパン）','ムバラ（魚のスモーク）','スイエ（スープ）'],
+    w1:['コンゴ川はアフリカで2番目に長い川','ゴリラとチンパンジーが共存する希少な熱帯雨林がある','ブラザビルはキンシャサと川を挟んで向き合う首都'],
+    bmc:'約310円（XAF 1,300）',mofa:'https://www.mofa.go.jp/mofaj/area/congokyo/index.html'},
+  'ガボン':{en:'Gabon',flag:'🇬🇦',cont:'アフリカ',cap:'リーブルビル',pop:'約230万人',area:'26.8万km²',currency:'CFAフラン（XAF）',lat:0.39,lon:9.45,
+    ind:['石油','木材','マンガン','農業','観光'],
+    tour:['ロペ国立公園（世界遺産）','クリスタル山脈','リーブルビル旧市街','ンポゴ海岸','バンディア保護区'],
+    food:['ニャンビ（魚の葉包み蒸し）','フフ（ヤムイモ料理）','ビタウメ（カタツムリ料理）','ムバラ（スモーク魚）','アティエケ'],
+    w1:['国土の85%が熱帯雨林（「アフリカの肺」のひとつ）','ゾウ・ゴリラ・チンパンジーが豊富な生態系','石油収入で一人当たりGDPはアフリカ有数'],
+    bmc:'約350円（XAF 1,500）',mofa:'https://www.mofa.go.jp/mofaj/area/gabon/index.html'},
+  'エリトリア':{en:'Eritrea',flag:'🇪🇷',cont:'アフリカ',cap:'アスマラ',pop:'約340万人',area:'11.8万km²',currency:'ナクファ（ERN）',lat:15.34,lon:38.93,
+    ind:['農業','採掘','漁業','建設'],
+    tour:['アスマラ（世界遺産・イタリア近代建築）','ダナキル低地','マッサワ旧港町','コハイト考古学遺跡','紅海リゾート'],
+    food:['インジェラ（発酵パンケーキ）','ジグニ（羊肉トマト煮）','フール（豆料理）','スィワ（カバブ）','エリトリアコーヒー'],
+    w1:['アスマラはイタリア植民地時代の近代建築で世界遺産','アフリカの角の戦略的要地（紅海・インド洋）','エリトリア独立戦争は30年（1961-1991）に及んだ'],
+    bmc:'約180円（ERN 7）',mofa:'https://www.mofa.go.jp/mofaj/area/eritrea/index.html'},
+  'ジブチ':{en:'Djibouti',flag:'🇩🇯',cont:'アフリカ',cap:'ジブチ',pop:'約100万人',area:'2.3万km²',currency:'フラン（DJF）',lat:11.59,lon:43.15,
+    ind:['港湾・物流（中継貿易）','軍事基地','サービス','漁業'],
+    tour:['アッサル湖（世界で3番目に低い場所）','アル・サーレ湖','デイ国立公園','タジュラ湾','ジブチ旧市街'],
+    food:['スクク（ヤギ肉スープ）','ファー（スパイスご飯）','サンブーサ（揚げ餃子）','アラビアコーヒー','ラクダのミルク'],
+    w1:['アジアとアフリカをつなぐ世界最重要の海峡（バブ・エル・マンデブ）に面する','アッサル湖はアフリカ最低地点（-155m）','米国・フランス・中国など多数の軍事基地が共存する唯一の国'],
+    bmc:'約440円（DJF 1,200）',mofa:'https://www.mofa.go.jp/mofaj/area/djibouti/index.html'},
+  'ソマリア':{en:'Somalia',flag:'🇸🇴',cont:'アフリカ',cap:'モガディシュ',pop:'約1,600万人',area:'63.8万km²',currency:'シリング（SOS）',lat:2.05,lon:45.34,
+    ind:['牧畜','漁業','農業','送金（海外在住者）'],
+    tour:['ラス・ハフン（アフリカ最東端）','モガディシュ旧市街','ラアスカハノ砂丘','バルダーレ','オーシャンビーチ'],
+    food:['バリス（スパイスご飯）','ラクダ肉料理','サブレブ（揚げ餃子）','ハレーボ（スープ）','ソマリアコーヒー'],
+    w1:['アフリカ大陸最東端の国','ラクダの数がアフリカ最多','独特の口承文化・詩の伝統が豊か'],
+    bmc:'約150円（SOS 850）',mofa:'https://www.mofa.go.jp/mofaj/area/somali/index.html'},
+  'エスワティニ':{en:'Eswatini',flag:'🇸🇿',cont:'アフリカ',cap:'ムババーネ',pop:'約120万人',area:'1.7万km²',currency:'リランゲーニ（SZL）',lat:-26.32,lon:31.14,
+    ind:['農業（サトウキビ）','製造業','観光','林業','製糖'],
+    tour:['ムラウラ国立公園','フロック国立公園','マンテンガ自然保護区','エジュリニ（スワジ文化村）','ムババネ市場'],
+    food:['スワジランド料理（シスワティ）','ウムコンボティ（発酵ビール）','エムホフォ（牛肉料理）','ウブ（とうもろこし粥）','サトウキビジュース'],
+    w1:['アフリカ最後の絶対君主制国家（国王が全権を持つ）','2018年に国名をスワジランドからエスワティニに改名','ライオンズ・ダン・フロック保護区はサイの保護で有名'],
+    bmc:'約430円（L40）',mofa:'https://www.mofa.go.jp/mofaj/area/eswatini/index.html'},
+  'レソト':{en:'Lesotho',flag:'🇱🇸',cont:'アフリカ',cap:'マセル',pop:'約220万人',area:'3万km²',currency:'ロチ（LSL）',lat:-29.32,lon:27.48,
+    ind:['農業','ダイヤモンド','観光','製造業','水資源'],
+    tour:['セルラロエ国立公園','マレアレア渓谷','ドラケンスバーグ山脈','スキーリゾート（アフリカ唯一）','カロエ要塞'],
+    food:['パップ（とうもろこし粥）','モロコ（豆料理）','セソト（伝統料理全般）','ローストポテト','レソトミルク'],
+    w1:['南アフリカに完全に囲まれた内陸国（飛び地国家）','アフリカ唯一のスキーリゾートがある','国土の全てが標高1,400m以上の高原国家'],
+    bmc:'約430円（L40）',mofa:'https://www.mofa.go.jp/mofaj/area/lesotho/index.html'},
+  'セーシェル':{en:'Seychelles',flag:'🇸🇨',cont:'アフリカ',cap:'ヴィクトリア',pop:'約10万人',area:'0.046万km²',currency:'ルピー（SCR）',lat:-4.62,lon:55.45,
+    ind:['観光','漁業','金融','農業（バニラ・ヤシ）'],
+    tour:['プラランのバレー・デ・メ（世界遺産）','ラ・ディグ島（アンス・スース・ダルジャン）','マエ島','セルフデコロン保護区','アルダブラ環礁（世界遺産）'],
+    food:['クレオール料理（魚・ライス）','クトゥパット（ヤシ葉包みご飯）','ルーガイ（ヤシのシチュー）','セーシェルカレー','タコの煮込み'],
+    w1:['ラ・ディグ島は「世界で最も美しいビーチ」のひとつ','コカ・デ・メル（二股ヤシの実）はセーシェル固有種','人口わずか10万人のアフリカ最小国'],
+    bmc:'約750円（SR 38）',mofa:'https://www.mofa.go.jp/mofaj/area/seychelles/index.html'},
+  'モーリシャス':{en:'Mauritius',flag:'🇲🇺',cont:'アフリカ',cap:'ポートルイス',pop:'約130万人',area:'0.204万km²',currency:'ルピー（MUR）',lat:-20.16,lon:57.50,
+    ind:['観光','金融','製造業','農業（サトウキビ）','IT'],
+    tour:['ル・モーン・ブラバン（世界遺産）','ブラック・リバー渓谷国立公園','水中滝（錯視）','シャマレル七色の大地','ガンジーの石像'],
+    food:['ダル・プーリ（インド風パン）','ガトー・ピマン（唐辛子揚げ菓子）','ライムピクルス','オクトパスカレー','ラム（サトウキビ蒸留酒）'],
+    w1:['世界初の「水中滝」の錯視で有名（海中の砂が作る幻想）','ドードー鳥が生息していた島（1681年絶滅）','アフリカで最も豊かな国のひとつ（一人当たりGDP）'],
+    bmc:'約590円（Re 150）',mofa:'https://www.mofa.go.jp/mofaj/area/mauritius/index.html'},
+  'カーボベルデ':{en:'Cape Verde',flag:'🇨🇻',cont:'アフリカ',cap:'プライア',pop:'約56万人',area:'0.403万km²',currency:'エスクード（CVE）',lat:14.93,lon:-23.51,
+    ind:['観光','漁業','農業','送金（海外在住者）','再生可能エネルギー'],
+    tour:['サンティアゴ島','サンヴィセンテ島（ミンデロ）','フォゴ島（活火山）','ボアビスタ島','タラファル海岸'],
+    food:['カシュパ（野菜スープ）','ムケカ（魚シチュー）','ブジャンティナ（チリソース）','グリルタコ','グロッグ（サトウキビ酒）'],
+    w1:['アフリカの中で最も安全で民主的な国のひとつ','モルナ（哀愁の音楽）はユネスコ無形文化遺産','大西洋の孤島・火山島の美しい自然景観'],
+    bmc:'約340円（CVE 270）',mofa:'https://www.mofa.go.jp/mofaj/area/capeverde/index.html'},
+  'サントメ・プリンシペ':{en:'Sao Tome and Principe',flag:'🇸🇹',cont:'アフリカ',cap:'サントメ',pop:'約22万人',area:'0.1万km²',currency:'ドブラ（STD）',lat:0.34,lon:6.73,
+    ind:['農業（カカオ）','漁業','観光','石油（開発中）'],
+    tour:['オーボ国立公園','クラウス・サン・セバスティアン','ピコ・カン・グランデ（奇岩）','ネーブ湾','カカオ農園見学'],
+    food:['カルドゥ（魚スープ）','フェイジョアーダ（豆料理）','カランドオイ（揚げ魚）','バナナ料理','カカオドリンク'],
+    w1:['世界最高品質カカオの産地（チョコレート通に人気）','ギニア湾赤道直下の火山島','アフリカで最も民主的な小島国のひとつ'],
+    bmc:'約300円（Db 6,500）',mofa:'https://www.mofa.go.jp/mofaj/area/stp/index.html'},
+  'ガンビア':{en:'Gambia',flag:'🇬🇲',cont:'アフリカ',cap:'バンジュール',pop:'約240万人',area:'1.13万km²',currency:'ダラシ（GMD）',lat:13.45,lon:-16.58,
+    ind:['農業（落花生）','漁業','観光','送金'],
+    tour:['クンタ・キンテ島（世界遺産・奴隷貿易）','ビントゥ自然保護区','ガンビア川','ファジャラビーチ','バカウマングローブ林'],
+    food:['ドモダ（落花生スープ）','ベネシン（米料理）','ラディコ（魚料理）','チェブジェン（セネガル風）','ビタム（揚げ餃子）'],
+    w1:['アフリカ本土最小の国','三方をセネガルに囲まれガンビア川だけ海に出られる','奴隷貿易の歴史を伝えるクンタ・キンテ島は世界遺産'],
+    bmc:'約230円（D 45）',mofa:'https://www.mofa.go.jp/mofaj/area/gambia/index.html'},
+  'ギニアビサウ':{en:'Guinea-Bissau',flag:'🇬🇼',cont:'アフリカ',cap:'ビサウ',pop:'約200万人',area:'3.6万km²',currency:'CFAフラン（XOF）',lat:11.86,lon:-15.60,
+    ind:['農業（カシューナッツ）','漁業','木材'],
+    tour:['ビジャゴス諸島（ユネスコ生物圏保護区）','ビサウ旧市街','カシェウ','オルランゴ島','ジョアン・バシスタ'],
+    food:['カラハン（魚スープ）','ジャンバ（落花生ソース料理）','アチアル（トウモロコシ料理）','カシューナッツジュース','ビサウビール'],
+    w1:['カシューナッツの主要産地のひとつ','ビジャゴス諸島は珍しい母系社会の文化が残る','世界最貧国のひとつで政治的に不安定'],
+    bmc:'約250円（XOF 1,100）',mofa:'https://www.mofa.go.jp/mofaj/area/guinea_b/index.html'},
+  'ギニア':{en:'Guinea',flag:'🇬🇳',cont:'アフリカ',cap:'コナクリ',pop:'約1,300万人',area:'24.6万km²',currency:'フラン（GNF）',lat:9.54,lon:-13.68,
+    ind:['鉱業（ボーキサイト）','農業','漁業','エネルギー'],
+    tour:['フタジャロン高原','コナクリ旧市街','ロス諸島','ニンバ山（世界遺産）','ディアロン高原'],
+    food:['タッサ（魚料理）','プラサス（落花生スープ）','アチャケ（キャッサバ）','フフ（ヤムイモ料理）','ギニアコーヒー'],
+    w1:['ボーキサイト（アルミニウム原料）の埋蔵量が世界最大クラス','ニジェール川・セネガル川・ガンビア川の源流がある「西アフリカの水源」','ニンバ山は独特の生態系で世界遺産'],
+    bmc:'約200円（GNF 12,000）',mofa:'https://www.mofa.go.jp/mofaj/area/guinea/index.html'},
+  'シエラレオネ':{en:'Sierra Leone',flag:'🇸🇱',cont:'アフリカ',cap:'フリータウン',pop:'約800万人',area:'7.2万km²',currency:'レオン（SLL）',lat:8.49,lon:-13.23,
+    ind:['鉱業（ダイヤモンド・鉄鉱石）','農業','漁業','製造業'],
+    tour:['トコ国立公園','バナナ諸島','フリータウン旧市街','ティウイビーチ','ゴラフォレスト国立公園'],
+    food:['プラサス（落花生スープ）','カサダ（キャッサバ料理）','ジョロフライス','アチャケ','クレオールシーフード'],
+    w1:['ブラッドダイヤモンド（紛争ダイヤモンド）問題の発端となった国','フリータウンは解放奴隷が建設した歴史的港町','ビーチが美しくアフリカの隠れた楽園'],
+    bmc:'約200円（SLL 3,000）',mofa:'https://www.mofa.go.jp/mofaj/area/s_leone/index.html'},
+  'リベリア':{en:'Liberia',flag:'🇱🇷',cont:'アフリカ',cap:'モンロビア',pop:'約520万人',area:'11.1万km²',currency:'ドル（LRD）',lat:6.30,lon:-10.80,
+    ind:['ゴム','鉄鉱石','農業','漁業','林業'],
+    tour:['サポ国立公園','モンロビア旧市街','タイワン・ビーチ','カコータ国立公園','ロバーツ・フィールド'],
+    food:['フフ（キャッサバ料理）','パームバターチキン','ライスブレッド','グビーズ（スープ）','カッサバリーフシチュー'],
+    w1:['解放されたアメリカ人奴隷が建国した国','アフリカで最初に独立を維持した共和国のひとつ','ゴム輸出量がアフリカ有数'],
+    bmc:'約220円（L$50）',mofa:'https://www.mofa.go.jp/mofaj/area/liberia/index.html'},
+  'マリ':{en:'Mali',flag:'🇲🇱',cont:'アフリカ',cap:'バマコ',pop:'約2,200万人',area:'124万km²',currency:'CFAフラン（XOF）',lat:12.65,lon:-8.00,
+    ind:['農業（綿花）','金','塩','牧畜','観光'],
+    tour:['ジェンネ大モスク（世界遺産）','トンブクトゥ（世界遺産）','バンジャガラ断崖（世界遺産）','ニジェール川','バマコ旧市街'],
+    food:['ティオウラ（米料理）','マフェ（落花生スープ）','チェブジェン（魚ご飯）','フォニオ（穀物料理）','マリコーヒー'],
+    w1:['トンブクトゥはサハラ交易の中心地（マリ帝国の都）','ジェンネ大モスクは世界最大の泥造建築','マリ帝国（14世紀）は世界最富裕国と言われた'],
+    bmc:'約280円（XOF 1,300）',mofa:'https://www.mofa.go.jp/mofaj/area/mali/index.html'},
+  'ブルキナファソ':{en:'Burkina Faso',flag:'🇧🇫',cont:'アフリカ',cap:'ワガドゥグ',pop:'約2,200万人',area:'27.4万km²',currency:'CFAフラン（XOF）',lat:12.37,lon:-1.53,
+    ind:['農業','金','綿花','畜産','製造業'],
+    tour:['ワガドゥグ旧市街','シニエン遺跡','ナクル保護区','ポ国立公園','アルリ国立公園'],
+    food:['トー（ソルガム粥）','ラグマ（羊肉料理）','アライコ（揚げ菓子）','ブルキナファソソース（落花生）','ドロ（チキン料理）'],
+    w1:['「誠実な人々の国」という意味の国名','西アフリカ映画の中心地（FESPACO映画祭開催）','ロバが最も多い国のひとつ'],
+    bmc:'約280円（XOF 1,300）',mofa:'https://www.mofa.go.jp/mofaj/area/burkina/index.html'},
+  'ニジェール':{en:'Niger',flag:'🇳🇪',cont:'アフリカ',cap:'ニアメ',pop:'約2,500万人',area:'126万km²',currency:'CFAフラン（XOF）',lat:13.51,lon:2.12,
+    ind:['ウラン','農業','牧畜','石油','鉱業'],
+    tour:['エール山岳地帯（世界遺産）','Wパルク（世界遺産）','ニアメ旧市街','アガデス旧市街（世界遺産）','テネレ砂漠'],
+    food:['トー（ソルガム粥）','ラクダ肉料理','ミルクとモロコシ料理','アライコ','チャイ（お茶）'],
+    w1:['世界最大の砂漠の中心に位置する内陸国','ウランの生産量が世界トップクラス','テネレの孤独なアカシア（かつて世界最孤立した木）'],
+    bmc:'約250円（XOF 1,100）',mofa:'https://www.mofa.go.jp/mofaj/area/niger/index.html'},
+  'チャド':{en:'Chad',flag:'🇹🇩',cont:'アフリカ',cap:'ウンジャメナ',pop:'約1,700万人',area:'128万km²',currency:'CFAフラン（XAF）',lat:12.11,lon:15.04,
+    ind:['石油','農業','牧畜','採掘','援助経済'],
+    tour:['ザコウマ国立公園','エンネディ・マッシフ（世界遺産）','チャド湖','ウンジャメナ旧市街','グアエル・フォス滝'],
+    food:['アアシー（ラクダ肉料理）','ドウア（タロイモ料理）','ボウラ（魚料理）','クスクス','ミレット粥'],
+    w1:['チャド湖は過去40年で90%縮小（環境問題の象徴）','エンネディの岩絵は2,000年前のサハラ壁画','アフリカの「心臓部」に位置する内陸国'],
+    bmc:'約250円（XAF 1,100）',mofa:'https://www.mofa.go.jp/mofaj/area/chad/index.html'},
+  '中央アフリカ共和国':{en:'Central African Republic',flag:'🇨🇫',cont:'アフリカ',cap:'バンギ',pop:'約520万人',area:'62.3万km²',currency:'CFAフラン（XAF）',lat:4.36,lon:18.56,
+    ind:['ダイヤモンド','木材','農業','金','牧畜'],
+    tour:['ジャンガ・サンガ特別保護区（ゴリラ）','バンギ旧市街','ンゴット川','ムパエム滝','マノボ・グーンダ公園（世界遺産）'],
+    food:['ゴゾ（キャッサバ料理）','ンドレ（葉野菜料理）','アカラ（豆ケーキ）','ムウェキ（スープ）','キャッサバビール'],
+    w1:['アフリカ地理的中心部に位置する国','ジャンガ・サンガはアフリカ最後の未開の森のひとつ','ダイヤモンド産出量は世界有数だが最貧困国のひとつ'],
+    bmc:'約200円（XAF 900）',mofa:'https://www.mofa.go.jp/mofaj/area/car/index.html'},
+  'ベナン':{en:'Benin',flag:'🇧🇯',cont:'アフリカ',cap:'ポルトノボ',pop:'約1,300万人',area:'11.3万km²',currency:'CFAフラン（XOF）',lat:6.37,lon:2.43,
+    ind:['農業（綿花）','漁業','観光','採掘','製造業'],
+    tour:['ガンヴィエ（湖上の村）','ウィダー（ブードゥー発祥）','ペンジャリ国立公園','アボメイ王宮（世界遺産）','コトヌー'],
+    food:['プラサス（落花生スープ）','アクラ（豆フリッター）','ガリ（キャッサバ）','アヤン（クリームソーススープ）','コルン（コーン料理）'],
+    w1:['ブードゥー教（ヴードゥー）の発祥の地','ガンヴィエは「アフリカのベネツィア」（水上の村）','アボメイ王宮はダホメー王国の遺産（世界遺産）'],
+    bmc:'約280円（XOF 1,300）',mofa:'https://www.mofa.go.jp/mofaj/area/benin/index.html'},
+  'トーゴ':{en:'Togo',flag:'🇹🇬',cont:'アフリカ',cap:'ロメ',pop:'約850万人',area:'5.7万km²',currency:'CFAフラン（XOF）',lat:6.14,lon:1.22,
+    ind:['農業（コーヒー・カカオ）','リン鉱石','漁業','製造業'],
+    tour:['ロメ旧市街','ケラン国立公園','タンブェルマ渓谷（世界遺産）','フォルト・ペケ','アタコラム山地'],
+    food:['フフ（ヤムイモ料理）','アクラ（揚げ菓子）','トーゴチキンシチュー','アポ（黒目豆料理）','キルシ（ソルガム飲料）'],
+    w1:['タンブェルマの要塞集落は独自の建築で世界遺産','ロメは海に面したアフリカで珍しい首都のひとつ','リン鉱石の埋蔵量がアフリカ有数'],
+    bmc:'約270円（XOF 1,200）',mofa:'https://www.mofa.go.jp/mofaj/area/togo/index.html'},
+  'モーリタニア':{en:'Mauritania',flag:'🇲🇷',cont:'アフリカ',cap:'ヌアクショット',pop:'約460万人',area:'103万km²',currency:'ウギア（MRU）',lat:18.08,lon:-15.97,
+    ind:['採掘（鉄鉱石）','漁業','農業','牧畜','石油'],
+    tour:['バンダルガジャル（世界遺産）','ウォーダン（世界遺産）','サハラ砂漠','ヌアクショット旧市街','アルガン湾（世界遺産）'],
+    food:['ティエブ（米と魚）','メチョウイ（羊の丸焼き）','ブドゥ（発酵魚のソース）','ゼリグ（ミルク料理）','ミントティー'],
+    w1:['アルガン湾は世界最大のボラ渡り鳥の聖地（世界遺産）','2007年に奴隷制が廃止されたと言われる国','砂漠の列車（世界最長の鉱石輸送列車）が走る'],
+    bmc:'約220円（MRU 17）',mofa:'https://www.mofa.go.jp/mofaj/area/mauritania/index.html'},
+  'コモロ':{en:'Comoros',flag:'🇰🇲',cont:'アフリカ',cap:'モロニ',pop:'約90万人',area:'0.186万km²',currency:'フラン（KMF）',lat:-11.70,lon:43.25,
+    ind:['農業（バニラ・丁字）','漁業','観光','送金'],
+    tour:['カルタラ火山','モロニ旧市街','ムツァムドゥ旧市街（アンジョアン島）','コモロサンゴ礁','ムトレ国立公園'],
+    food:['ムトレレ（スパイスご飯）','ランゴーストカレー（ロブスター）','ムチョコチョ（ヤシ料理）','バナナ料理','ラフィア（ヤシ酒）'],
+    w1:['バニラ・丁字（クローブ）・イランイランの世界最大産地のひとつ','世界最大の火山島コモロ群島','「インド洋の香水の島」と呼ばれる'],
+    bmc:'約270円（CF 500）',mofa:'https://www.mofa.go.jp/mofaj/area/comoros/index.html'},
+  '赤道ギニア':{en:'Equatorial Guinea',flag:'🇬🇶',cont:'アフリカ',cap:'マラボ',pop:'約150万人',area:'2.8万km²',currency:'CFAフラン（XAF）',lat:3.75,lon:8.78,
+    ind:['石油','農業（カカオ・コーヒー）','林業','漁業'],
+    tour:['バイレ国立公園','ビオコ島','プンゴエ滝','マラボ旧市街','モンテアレン国立公園'],
+    food:['エガ（魚と野菜のシチュー）','カカオ料理','ジュール（ヤムイモ料理）','アチャケ','地ワイン'],
+    w1:['アフリカで唯一スペイン語が公用語の国','石油発見でアフリカ最高水準の一人当たりGDPを達成','赤道に近い火山島と本土を持つ珍しい国'],
+    bmc:'約310円（XAF 1,300）',mofa:'https://www.mofa.go.jp/mofaj/area/eq_guinea/index.html'},
+  'ブルンジ':{en:'Burundi',flag:'🇧🇮',cont:'アフリカ',cap:'ブジュンブラ',pop:'約1,250万人',area:'2.78万km²',currency:'フラン（BIF）',lat:-3.38,lon:29.37,
+    ind:['農業（コーヒー・紅茶）','採掘','漁業','援助経済'],
+    tour:['タンガニーカ湖','ブジュンブラ旧市街','キビラ国立公園','リビングストンとスタンレーの会見地','ルズィジ川'],
+    food:['ウガリ（とうもろこし粥）','イジコ（豆料理）','インジェラ（発酵パン）','ブルンジコーヒー','サワーミルク'],
+    w1:['タンガニーカ湖はアフリカ最深の湖（世界2位）','コーヒーの品質がアフリカ有数','アフリカ最貧国のひとつだが豊かな自然がある'],
+    bmc:'約170円（FBu 1,000）',mofa:'https://www.mofa.go.jp/mofaj/area/brundi/index.html'}
+,
+  'ハイチ':{en:'Haiti',flag:'🇭🇹',cont:'北米',cap:'ポルトープランス',pop:'約1,120万人',area:'2.78万km²',currency:'グルド（HTG）',lat:18.54,lon:-72.34,
+    ind:['農業','製造業（縫製）','観光','採掘','援助経済'],
+    tour:['シタデル・ラフェリエール（世界遺産）','ラバディ海岸','ペションビル','ジャクメル旧市街','バショワの滝'],
+    food:['グリオ（揚げ豚肉）','ラ・ブイ（ライスとソース）','ソップ・ジュモウ（カボチャスープ）','バナナ料理','クレオール料理'],
+    w1:['世界初の黒人共和国（1804年独立）','奴隷反乱によって独立した唯一の国','ヒスパニョーラ島をドミニカ共和国と分け合う'],
+    bmc:'約280円（HTG 375）',mofa:'https://www.mofa.go.jp/mofaj/area/haiti/index.html'},
+  'ドミニカ共和国':{en:'Dominican Republic',flag:'🇩🇴',cont:'北米',cap:'サントドミンゴ',pop:'約1,100万人',area:'4.84万km²',currency:'ペソ（DOP）',lat:18.47,lon:-69.90,
+    ind:['観光','農業（砂糖・コーヒー）','製造業','採掘','金融'],
+    tour:['プンタカナ（リゾート）','サマナ半島','サントドミンゴ旧市街（世界遺産）','ハラバコア山','カブレラ'],
+    food:['ラ・バンデラ（国旗料理・米豆肉）','サンコーチョ（肉スープ）','マングー（プランテン料理）','チチャロン','バルアナグアバ（グアバケーキ）'],
+    w1:['コロンブスが最初に上陸したカリブ海の島（1492年）','サントドミンゴは新大陸最古のヨーロッパ植民都市','カリブ海最大の国（ハイチとヒスパニョーラ島を共有）'],
+    bmc:'約400円（RD$750）',mofa:'https://www.mofa.go.jp/mofaj/area/dominican_r/index.html'},
+  'ジャマイカ':{en:'Jamaica',flag:'🇯🇲',cont:'北米',cap:'キングストン',pop:'約300万人',area:'1.09万km²',currency:'ドル（JMD）',lat:17.99,lon:-76.79,
+    ind:['観光','農業（コーヒー）','採掘（ボーキサイト）','製造業','音楽産業'],
+    tour:['モンテゴベイのビーチ','ダン・リバー・フォール','ネグリル（7マイルビーチ）','ブルーマウンテン','ボブ・マーリーミュージアム'],
+    food:['ジャーク・チキン（スパイス鶏）','アキーとソルトフィッシュ（国民食）','バナナポリッジ','ジャマイカビーフパティ','レッドストライプ（ビール）'],
+    w1:['レゲエ音楽とボブ・マーリーの故郷','ブルーマウンテンコーヒーは世界最高級','100m走で世界最速選手を多数輩出（ウサイン・ボルト）'],
+    bmc:'約510円（J$1,100）',mofa:'https://www.mofa.go.jp/mofaj/area/jamaica/index.html'},
+  'トリニダード・トバゴ':{en:'Trinidad and Tobago',flag:'🇹🇹',cont:'北米',cap:'ポート・オブ・スペイン',pop:'約140万人',area:'0.513万km²',currency:'ドル（TTD）',lat:10.65,lon:-61.52,
+    ind:['石油・天然ガス','石油化学','観光','農業','製造業'],
+    tour:['カーニバル（世界三大カーニバル）','アスファルト湖（ピッチ・レイク）','マイン湾野鳥保護区','マラカスビーチ','タバゴのサンゴ礁'],
+    food:['ダブル（チックピーサンド）','クラブカレー','ペロウ（ライス）','カルラリー（野菜スープ）','ラムパンチ'],
+    w1:['カーニバルが世界三大カーニバルのひとつ（リオ・ベニスと並ぶ）','世界最大の天然アスファルト湖がある','スティールパン（楽器）の発祥地'],
+    bmc:'約470円（TT$44）',mofa:'https://www.mofa.go.jp/mofaj/area/trinidad/index.html'},
+  'バハマ':{en:'Bahamas',flag:'🇧🇸',cont:'北米',cap:'ナッソー',pop:'約39万人',area:'1.39万km²',currency:'ドル（BSD）',lat:25.04,lon:-77.35,
+    ind:['観光','金融（オフショア）','漁業','農業'],
+    tour:['ナッソー旧市街','ピッグビーチ（泳ぐ豚）','エクスーマ（透明な海）','ケーブルビーチ','ディーン・ブルーホール'],
+    food:['コンク料理（法螺貝）','バハマスタイルバーベキュー','ジョニーケーキ（コーンブレッド）','フライフィッシュ','バハママンマ（カクテル）'],
+    w1:['世界で最も美しい海のひとつ（エクスーマの透明な海）','世界一有名な泳ぐブタ（ピッグビーチ）がある島','コロンブスが新大陸に最初に到達した地（サンサルバドル島）'],
+    bmc:'約840円（B$5.60）',mofa:'https://www.mofa.go.jp/mofaj/area/bahama/index.html'},
+  'バルバドス':{en:'Barbados',flag:'🇧🇧',cont:'北米',cap:'ブリッジタウン',pop:'約29万人',area:'0.043万km²',currency:'ドル（BBD）',lat:13.10,lon:-59.62,
+    ind:['観光','金融','農業（砂糖）','情報通信','製造業'],
+    tour:['ブリッジタウン旧市街（世界遺産）','バタービーチ','ハリソン洞窟','セント・ニコラスアビー','スコッツランド地区'],
+    food:['クカーン（揚げ魚サンド）','フライフライング（トビウオ料理）','バルバドスラム（世界最古ラムの産地）','コウチャウ（お粥）','ライムスクワッシュ'],
+    w1:['ラムの発祥の地（17世紀から醸造）','リアーナの故郷（世界的ポップスター）','英国連邦で最も豊かなカリブ海諸国のひとつ'],
+    bmc:'約630円（Bds$8.50）',mofa:'https://www.mofa.go.jp/mofaj/area/barbados/index.html'},
+  'グアテマラ':{en:'Guatemala',flag:'🇬🇹',cont:'北米',cap:'グアテマラ市',pop:'約1,700万人',area:'10.9万km²',currency:'ケツァル（GTQ）',lat:14.64,lon:-90.51,
+    ind:['農業（コーヒー・バナナ）','観光','製造業','採掘','繊維'],
+    tour:['アンティグア（世界遺産）','ティカル遺跡（世界遺産）','アティトラン湖','チチカステナンゴ市場','パカヤ火山'],
+    food:['ペピアン（カボチャ種スープ）','カルドデポジョ（チキンスープ）','トトポスタ（コーントルティーヤ）','グアテマラコーヒー','タマレス'],
+    w1:['マヤ文明最大の遺跡ティカルがある','グアテマラコーヒーは世界最高品質のひとつ','ケツァル（国鳥）は自由の象徴で国名・通貨の由来'],
+    bmc:'約420円（Q35）',mofa:'https://www.mofa.go.jp/mofaj/area/guatemala/index.html'},
+  'コスタリカ':{en:'Costa Rica',flag:'🇨🇷',cont:'北米',cap:'サンホセ',pop:'約520万人',area:'5.11万km²',currency:'コロン（CRC）',lat:9.93,lon:-84.09,
+    ind:['観光（エコツーリズム）','農業（コーヒー・バナナ）','IT','製造業','医療機器'],
+    tour:['アレナル火山','モンテベルデ雲霧林','マヌエルアントニオ国立公園','コルコバード国立公園','トルトゲーロ（ウミガメ）'],
+    food:['ガジョ・ピント（米と豆）','カサード（定食）','チョリパン','エンパナーダ','コスタリカコーヒー'],
+    w1:['軍隊を持たない永世中立国（1948年以来）','電力の99%以上を再生可能エネルギーでまかなう','生物多様性が世界最高クラス（全動植物種の6%が生息）'],
+    bmc:'約570円（₡3,800）',mofa:'https://www.mofa.go.jp/mofaj/area/costarica/index.html'},
+  'パナマ':{en:'Panama',flag:'🇵🇦',cont:'北米',cap:'パナマシティ',pop:'約440万人',area:'7.56万km²',currency:'バルボア/米ドル（PAB）',lat:8.99,lon:-79.52,
+    ind:['パナマ運河','金融','観光','農業','物流'],
+    tour:['パナマ運河（ミラフローレス閘門）','カスコビエホ（世界遺産）','サンブラス諸島','コイバ国立公園','ダリエン国立公園（世界遺産）'],
+    food:['サンコーチョ（チキンスープ・国民食）','ロパビエハ（牛肉料理）','タマレス','ケケス（コーンケーキ）','ソウナ（魚料理）'],
+    w1:['パナマ運河は世界最重要の人工水路のひとつ','南北アメリカ大陸を陸路でつなぐ国','パナマハットはエクアドル製だがパナマ経由で世界に広まった'],
+    bmc:'約480円（B/.3.15）',mofa:'https://www.mofa.go.jp/mofaj/area/panama/index.html'},
+  'ホンジュラス':{en:'Honduras',flag:'🇭🇳',cont:'北米',cap:'テグシガルパ',pop:'約1,000万人',area:'11.2万km²',currency:'レンピラ（HNL）',lat:14.09,lon:-87.21,
+    ind:['農業（バナナ・コーヒー）','製造業','観光','採掘','漁業'],
+    tour:['コパン遺跡（世界遺産）','ロアタン島','ピコ・ボニート国立公園','テグシガルパ旧市街','マングローブ林'],
+    food:['バレアダス（豆トルティーヤ）','ソパ・デ・モンドンゴ（内臓スープ）','セビーチェ','ポジョ（チキン料理）','オルチャータ（ライスドリンク）'],
+    w1:['コパンのマヤ遺跡は石刻芸術が世界最高クラス','バナナ共和国の語源となった国','カリブ海最大の珊瑚礁の一部がある'],
+    bmc:'約350円（L95）',mofa:'https://www.mofa.go.jp/mofaj/area/honduras/index.html'},
+  'ニカラグア':{en:'Nicaragua',flag:'🇳🇮',cont:'北米',cap:'マナグア',pop:'約680万人',area:'13万km²',currency:'コルドバ（NIO）',lat:12.13,lon:-86.29,
+    ind:['農業（コーヒー・牛肉）','製造業','観光','採掘'],
+    tour:['グラナダ旧市街','レオン旧市街（世界遺産）','コルシグイナ火山','サン・フアン・デル・スル','ニカラグア湖'],
+    food:['ガジョ・ピント（米と豆）','ビゴロン（揚げキャッサバ）','ナカタマル（タマレ）','ニカラグアコーヒー','チチャ（発酵飲料）'],
+    w1:['中央アメリカ最大の湖（ニカラグア湖）がある','レオンは世界最古の大聖堂のひとつを持つ','中央アメリカ最大の国土面積'],
+    bmc:'約350円（C$100）',mofa:'https://www.mofa.go.jp/mofaj/area/nicaragua/index.html'},
+  'エルサルバドル':{en:'El Salvador',flag:'🇸🇻',cont:'北米',cap:'サンサルバドル',pop:'約660万人',area:'2.1万km²',currency:'米ドル（USD）',lat:13.69,lon:-89.22,
+    ind:['農業（コーヒー）','製造業','観光','電子機器','金融'],
+    tour:['ホヤ・デ・セレン（世界遺産・火山灰に埋もれた村）','サンタ・アナ火山','エル・トゥンコビーチ','サンサルバドル旧市街','ラ・パルマ'],
+    food:['プパサ（コーン詰め物料理・国民食）','トマレス','セビーチェ','フレスカ（甘い飲料）','エルサルバドルコーヒー'],
+    w1:['プパサは中央アメリカ最古の料理のひとつ','ホヤ・デ・セレンは「アメリカのポンペイ」（世界遺産）','ビットコインを世界初の法定通貨にした国（2021年）'],
+    bmc:'約440円（$2.99）',mofa:'https://www.mofa.go.jp/mofaj/area/elsalvador/index.html'},
+  'ベリーズ':{en:'Belize',flag:'🇧🇿',cont:'北米',cap:'ベルモパン',pop:'約40万人',area:'2.3万km²',currency:'ドル（BZD）',lat:17.25,lon:-88.77,
+    ind:['農業（砂糖・柑橘類）','観光','漁業','林業'],
+    tour:['グレートブルーホール（世界遺産・ダイビングの聖地）','ベリーズシティ旧市街','カリブ海リーフ（世界遺産）','ホレス（ジャガー保護区）','ラマナイ遺跡'],
+    food:['ライスアンドビーンズ','クドゥー（野生動物肉）','セビーチェ','ボイルアップ（煮込み）','ベリーズビール'],
+    w1:['グレートブルーホールは世界最大の水中洞窟（世界遺産）','中央アメリカ唯一の英語公用語国','ジャガーの保護区「コックスコム」がある'],
+    bmc:'約480円（BZ$3.50）',mofa:'https://www.mofa.go.jp/mofaj/area/belize/index.html'},
+  'ドミニカ国':{en:'Dominica',flag:'🇩🇲',cont:'北米',cap:'ロゾー',pop:'約7.2万人',area:'0.075万km²',currency:'東カリブドル（XCD）',lat:15.30,lon:-61.39,
+    ind:['農業（バナナ）','観光','エコツーリズム','漁業'],
+    tour:['モルヌ・トロワ・ピトン国立公園（世界遺産）','ボイリングレイク（世界2位の熱水湖）','インディアンリバー','ロゾー旧市街','スコット・ヘッド火山口'],
+    food:['カラルー（葉野菜スープ）','マウンテンチキン（大型カエル料理）','ロティ（インド風パン）','ダシーン（タロイモ料理）','ドミニカコーヒー'],
+    w1:['「カリブ海の自然の島」と呼ばれる手付かずの自然','世界2番目に大きい熱水湖（ボイリングレイク）','映画「パイレーツ・オブ・カリビアン」のロケ地'],
+    bmc:'約480円（EC$3.50）',mofa:'https://www.mofa.go.jp/mofaj/area/c_dominica/index.html'},
+  'グレナダ':{en:'Grenada',flag:'🇬🇩',cont:'北米',cap:'セントジョージズ',pop:'約11万人',area:'0.034万km²',currency:'東カリブドル（XCD）',lat:12.11,lon:-61.68,
+    ind:['観光','農業（スパイス）','漁業','金融'],
+    tour:['グランドアンセビーチ','セントジョージズ旧市街','バジルスタウン','ダイビングスポット','カリブ海リーフ'],
+    food:['オイルダウン（ナショナルディッシュ）','カレーラム','カランルー（野菜スープ）','グレナダチョコレート','ラムパンチ'],
+    w1:['世界最多のスパイス産地（ナツメグ・クローブ・シナモン）','「スパイス島」と呼ばれる','グレナダチョコレートは世界有数の品質'],
+    bmc:'約510円（EC$3.75）',mofa:'https://www.mofa.go.jp/mofaj/area/grenada/index.html'},
+  'セントクリストファー・ネービス':{en:'Saint Kitts and Nevis',flag:'🇰🇳',cont:'北米',cap:'バセテール',pop:'約5.5万人',area:'0.026万km²',currency:'東カリブドル（XCD）',lat:17.30,lon:-62.73,
+    ind:['観光','農業（砂糖）','金融','製造業'],
+    tour:['ブリムストーンヒル要塞（世界遺産）','ネービス峰','セントキッツ鉄道','カナアンビーチ','ピンニー・ビーチ（ネービス）'],
+    food:['ストー（塩魚・いも料理）','ゴートウォーター（ヤギのスープ）','ジョニーケーキ','マンゴーチャツネ','クリスタルスパリング（ラム）'],
+    w1:['新大陸で最初の英国植民地（1623年）','ブリムストーンヒル要塞は世界遺産','カリブ海最小の独立国家のひとつ'],
+    bmc:'約510円（EC$3.75）',mofa:'https://www.mofa.go.jp/mofaj/area/scn/index.html'},
+  'セントルシア':{en:'Saint Lucia',flag:'🇱🇨',cont:'北米',cap:'カストリーズ',pop:'約18万人',area:'0.061万km²',currency:'東カリブドル（XCD）',lat:13.91,lon:-60.98,
+    ind:['観光','農業（バナナ）','製造業','金融'],
+    tour:['ピトン山（世界遺産）','ロデニー湾','サルフル・スプリングス（ドライブイン火山）','マリゴット湾','アンス・シャスタネ'],
+    food:['グリンフィグ（バナナシチュー）','カランルー（野菜スープ）','ダシーン（タロイモ料理）','セントルシアラム','クリオール料理'],
+    w1:['ピトン山は世界遺産の双子火山（圧倒的な景観）','最も多くのノーベル賞受賞者を輩出した国（人口比）','セントルシアのカーニバルは世界有数'],
+    bmc:'約510円（EC$3.75）',mofa:'https://www.mofa.go.jp/mofaj/area/s_lucia/index.html'},
+  'セントビンセント・グレナディーン':{en:'Saint Vincent and the Grenadines',flag:'🇻🇨',cont:'北米',cap:'キングスタウン',pop:'約10万人',area:'0.039万km²',currency:'東カリブドル（XCD）',lat:13.15,lon:-61.22,
+    ind:['農業（バナナ）','観光','漁業','金融'],
+    tour:['スーフリエール（火山）','ユニオン島','ビーキー（ダイビング）','ムスティク島（高級リゾート）','キングスタウン旧市街'],
+    food:['ルーキー（魚料理）','カランルー','ローストブレッドフルーツ','フライ・ジャック（揚げパン）','アローロート料理'],
+    w1:['アローロート（でんぷん）の世界最大産地のひとつ','「パイレーツ・オブ・カリビアン」の撮影地','ムスティク島は世界最高級リゾート島のひとつ'],
+    bmc:'約480円（EC$3.50）',mofa:'https://www.mofa.go.jp/mofaj/area/svg/index.html'},
+  'アンティグア・バーブーダ':{en:'Antigua and Barbuda',flag:'🇦🇬',cont:'北米',cap:'セントジョンズ',pop:'約9.7万人',area:'0.044万km²',currency:'東カリブドル（XCD）',lat:17.12,lon:-61.85,
+    ind:['観光','金融','農業','漁業'],
+    tour:['365のビーチ（1年分のビーチ）','ネルソンズドックヤード（世界遺産）','シャーリーハイツ','ダービーバービーチ','コードリントンラグーン'],
+    food:['ファンキー（コーン料理）','ダウンダ（揚げケーキ）','ダコン（魚料理）','ペッパーポット（スープ）','アンティガラム'],
+    w1:['「1年間毎日違うビーチで過ごせる（365のビーチ）」','ネルソンズドックヤードはカリブ海最古の現役ドック','クリケットの強豪国（カリブ海クリケットの中心）'],
+    bmc:'約510円（EC$3.75）',mofa:'https://www.mofa.go.jp/mofaj/area/antigua/index.html'},
+  'エクアドル':{en:'Ecuador',flag:'🇪🇨',cont:'南米',cap:'キト',pop:'約1,800万人',area:'28.4万km²',currency:'米ドル（USD）',lat:-0.23,lon:-78.52,
+    ind:['石油','農業（バナナ・花卉）','観光','水産業','製造業'],
+    tour:['ガラパゴス諸島（世界遺産）','キト旧市街（世界遺産）','コトパクシ火山','バニョス','チョコ熱帯雨林'],
+    food:['セコ・デ・ポジョ（チキン煮込み）','セビーチェ・エクアトリアーノ','ロコト・レジェノ（唐辛子詰め物）','チフレス（バナナチップス）','コルド（豚肉焼き）'],
+    w1:['ガラパゴス諸島はダーウィンの進化論の聖地','赤道直下の国（エクアドルはスペイン語で「赤道」）','バナナの輸出量が世界トップクラス'],
+    bmc:'約490円（$2.99）',mofa:'https://www.mofa.go.jp/mofaj/area/ecuador/index.html'},
+  'ボリビア':{en:'Bolivia',flag:'🇧🇴',cont:'南米',cap:'ラパス',pop:'約1,200万人',area:'109万km²',currency:'ボリビアーノ（BOB）',lat:-16.50,lon:-68.15,
+    ind:['鉱業（リチウム・銀）','農業','天然ガス','観光','製造業'],
+    tour:['ウユニ塩湖','ティティカカ湖','スクレ旧市街（世界遺産）','アマゾン盆地','ラパス旧市街'],
+    food:['サルテーニャス（ジューシー餃子）','チャイロ（芋スープ）','アンティクーチョス（牛心串焼き）','キヌア料理','シンガニ（蒸留酒）'],
+    w1:['ウユニ塩湖は世界最大の塩湖（鏡面反射が絶景）','リチウムの埋蔵量が世界最多（電気自動車の鍵）','ラパスは世界最高所の首都（標高3,600m）'],
+    bmc:'約370円（Bs14）',mofa:'https://www.mofa.go.jp/mofaj/area/bolivia/index.html'},
+  'パラグアイ':{en:'Paraguay',flag:'🇵🇾',cont:'南米',cap:'アスンシオン',pop:'約740万人',area:'40.7万km²',currency:'グアラニー（PYG）',lat:-25.29,lon:-57.65,
+    ind:['農業（大豆）','牧畜','水力発電','製造業','観光'],
+    tour:['イエズス会伝道施設（世界遺産）','アスンシオン旧市街','ルナ・グアスリゾート','パンタナル','ポロロ渓谷'],
+    food:['ソパ・パラグアジャ（コーンケーキ）','チパ（チーズパン）','ボリ・ボリ（スープ）','アサード（BBQ）','テレレ（冷やしマテ茶）'],
+    w1:['テレレ（冷製マテ茶）はユネスコ無形文化遺産','イタイプ・ダムは世界最大の水力発電量（稼働時）','世界最大の大豆輸出国のひとつ'],
+    bmc:'約360円（Gs 13,000）',mofa:'https://www.mofa.go.jp/mofaj/area/paraguay/index.html'},
+  'ウルグアイ':{en:'Uruguay',flag:'🇺🇾',cont:'南米',cap:'モンテビデオ',pop:'約350万人',area:'17.6万km²',currency:'ペソ（UYU）',lat:-34.90,lon:-56.19,
+    ind:['農業（牛肉・大豆）','観光','IT','製造業','金融'],
+    tour:['コロニア・デル・サクラメント（世界遺産）','モンテビデオ旧市街','プンタ・デル・エステ（高級リゾート）','ロチャのビーチ','パルケ・ロドー'],
+    food:['チヴィート（ステーキサンド）','アサード（BBQ）','チュラスコ（グリル肉）','ミラネーサ','マテ茶'],
+    w1:['南米で最も民主的・安定した国のひとつ','大麻の栽培・販売を世界初で合法化した国','一人当たりの牛肉消費量が世界最多クラス'],
+    bmc:'約530円（$U 115）',mofa:'https://www.mofa.go.jp/mofaj/area/uruguay/index.html'},
+  'ベネズエラ':{en:'Venezuela',flag:'🇻🇪',cont:'南米',cap:'カラカス',pop:'約3,300万人',area:'91.6万km²',currency:'ボリバル（VES）',lat:10.49,lon:-66.88,
+    ind:['石油（世界最大の埋蔵量）','農業','製造業','観光（危機中）'],
+    tour:['エンジェルフォール（世界最高の滝・979m）','カナイマ国立公園（世界遺産）','ロライマ山（テーブルマウンテン）','マルガリータ島','メリダ（ロープウェイ）'],
+    food:['アレパ（コーン粉ケーキ）','ペビージョ（肉炒め）','ハロ（クリスマス料理）','テケノス（チーズスティック）','パナペン（パンの実料理）'],
+    w1:['エンジェルフォールは世界最高の滝（979m）','石油埋蔵量が世界最大（確認埋蔵量）','ロライマ山は「失われた世界」（コナン・ドイル小説の舞台）'],
+    bmc:'約350円（Bs.D 15）',mofa:'https://www.mofa.go.jp/mofaj/area/venezuela/index.html'},
+  'ガイアナ':{en:'Guyana',flag:'🇬🇾',cont:'南米',cap:'ジョージタウン',pop:'約80万人',area:'21.5万km²',currency:'ドル（GYD）',lat:6.80,lon:-58.16,
+    ind:['農業（砂糖・米）','採掘（金・ボーキサイト）','石油（新発見）','林業','漁業'],
+    tour:['カイエトゥール滝（世界最大流量の滝のひとつ）','ルプヌニのサバンナ','イウォカラマ森林保護区','ジョージタウン旧市街','シェル・ビーチ'],
+    food:['ペッパーポット（スパイス肉料理）','ルーティー（インド風パン）','カリビアンカレー','クックアップライス','マウビ（樹皮飲料）'],
+    w1:['南アメリカ唯一の英語公用語国','カイエトゥール滝は単一落下量が世界最大クラス','2015年以降の石油発見でGDP急成長中'],
+    bmc:'約440円（G$1,300）',mofa:'https://www.mofa.go.jp/mofaj/area/guyana/index.html'},
+  'スリナム':{en:'Suriname',flag:'🇸🇷',cont:'南米',cap:'パラマリボ',pop:'約60万人',area:'16.4万km²',currency:'ドル（SRD）',lat:5.87,lon:-55.17,
+    ind:['採掘（金・ボーキサイト）','農業','石油','観光','林業'],
+    tour:['パラマリボ旧市街（世界遺産）','中央スリナム自然保護区（世界遺産）','ブラウンスベルグ自然保護区','コルヴィ川','マロウィネ川'],
+    food:['ポム（タロイモと鶏の料理）','サオトスープ','ライスとダル','ロティ（インド風パン）','バクバナナ（焼きバナナ）'],
+    w1:['南アメリカ最小の国','オランダ語が公用語の唯一の南米国（旧オランダ領）','国土の93%が熱帯雨林（世界最高割合）'],
+    bmc:'約390円（SRD 55）',mofa:'https://www.mofa.go.jp/mofaj/area/suriname/index.html'},
+  'フィジー':{en:'Fiji',flag:'🇫🇯',cont:'オセアニア',cap:'スバ',pop:'約93万人',area:'1.83万km²',currency:'ドル（FJD）',lat:-18.14,lon:178.44,
+    ind:['観光','農業（サトウキビ）','漁業','製造業','金融'],
+    tour:['ママヌカ諸島','ヤサワ諸島','ビティ・レブ島','ガウ島','ガラパゴ火山'],
+    food:['ロボ（石焼き料理）','ダロ（タロイモ料理）','ルウォカ（タコ料理）','ポケ（魚料理）','カバ（伝統飲料）'],
+    w1:['映画「キャスト・アウェイ」のロケ地（モヌルキ島）','南太平洋フィジアン文化の中心地','サーフィンの聖地クラウドブレイクがある'],
+    bmc:'約560円（F$4.00）',mofa:'https://www.mofa.go.jp/mofaj/area/fiji/index.html'},
+  'パプアニューギニア':{en:'Papua New Guinea',flag:'🇵🇬',cont:'オセアニア',cap:'ポートモレスビー',pop:'約1,000万人',area:'46.3万km²',currency:'キナ（PGK）',lat:-9.44,lon:147.18,
+    ind:['採掘（金・銅・LNG）','農業（コーヒー・コプラ）','林業','漁業','観光'],
+    tour:['ポートモレスビー旧市街','セピック川','トロブリアンド諸島','マウントハーゲンの祭り','ラバウル火山'],
+    food:['ムームー（石焼き料理）','サゴヤシ料理','クコン（タロイモ料理）','スモークフィッシュ','ベテルナッツ（嗜好品）'],
+    w1:['世界最多の言語数（約820言語）','ニューギニア島はグリーンランドに次ぐ世界2位の島','鳥類の多様性が世界トップクラス（極楽鳥など）'],
+    bmc:'約430円（K5.00）',mofa:'https://www.mofa.go.jp/mofaj/area/png/index.html'},
+  'ソロモン諸島':{en:'Solomon Islands',flag:'🇸🇧',cont:'オセアニア',cap:'ホニアラ',pop:'約70万人',area:'2.85万km²',currency:'ドル（SBD）',lat:-9.43,lon:160.05,
+    ind:['林業','漁業','農業（コプラ・カカオ）','採掘','観光'],
+    tour:['ガダルカナル島（第二次大戦激戦地）','レンネル島（世界遺産）','マロボ・ラグーン','マライタ島','ガイジョ洞窟'],
+    food:['クマラ（サツマイモ）','ロボ（石焼き）','スラ（葉野菜煮込み）','フライフィッシュ','カスタードアップル'],
+    w1:['ガダルカナル島は第二次大戦の激戦地（ガ島戦）','レンネル島は世界最大のサンゴ礁の島（世界遺産）','太平洋に散らばる992の島々からなる'],
+    bmc:'約380円（SI$25）',mofa:'https://www.mofa.go.jp/mofaj/area/solomon/index.html'},
+  'バヌアツ':{en:'Vanuatu',flag:'🇻🇺',cont:'オセアニア',cap:'ポートビラ',pop:'約32万人',area:'1.22万km²',currency:'バツ（VUV）',lat:-17.73,lon:168.32,
+    ind:['観光','農業（コプラ・カカオ）','漁業','金融（タックスヘイブン）'],
+    tour:['ヤスール火山（世界最到達しやすい活火山）','シャンペンビーチ','マタナス遺跡','ポートビラ水産市場','エスピリトゥサント島'],
+    food:['ラプラプ（葉包み石焼き料理）','ポップライス','タロイモ料理','ランブ（ヤギ料理）','カバ（伝統飲料）'],
+    w1:['世界最到達しやすい活火山（タナ島・ヤスール火山）','127の言語が話される世界最多言語密度のひとつ','幸福度調査で世界最幸福な国に選ばれたことがある'],
+    bmc:'約460円（Vt1,200）',mofa:'https://www.mofa.go.jp/mofaj/area/vanuatu/index.html'},
+  'サモア':{en:'Samoa',flag:'🇼🇸',cont:'オセアニア',cap:'アピア',pop:'約22万人',area:'0.283万km²',currency:'タラ（WST）',lat:-13.84,lon:-171.77,
+    ind:['農業（コプラ・タロイモ）','観光','漁業','縫製','送金'],
+    tour:['アピア旧市街','トシア（水中洞窟）','ロベルト・ルイス・スティーブンソンの墓','アロファアガ噴気孔','サレアウラ溶岩原野'],
+    food:['パウサミ（タロイモとココナッツ煮）','オタ・イカ（生魚マリネ）','パルサミ（タロイモ葉料理）','ウム（石焼き料理）','ココナッツクリーム料理'],
+    w1:['ポリネシア人の故郷（発祥地のひとつ）','西半球で最初に新年を迎える国のひとつ','ラグビーの強豪国（人口比でNBA選手輩出率並み）'],
+    bmc:'約440円（T$8）',mofa:'https://www.mofa.go.jp/mofaj/area/samoa/index.html'},
+  'トンガ':{en:'Tonga',flag:'🇹🇴',cont:'オセアニア',cap:'ヌクアロファ',pop:'約10万人',area:'0.075万km²',currency:'パアンガ（TOP）',lat:-21.14,lon:-175.20,
+    ind:['農業（バニラ・スクワッシュ）','漁業','観光','送金'],
+    tour:['ハアパイ諸島','ヴァヴァウ島（ホエールウォッチング）','ヌクアロファ旧市街','ラペハ洞窟','エウア国立公園'],
+    food:['ルカウ（豚の石焼き）','オタ・イカ（生魚サラダ）','ウム（地熱料理）','タロイモ料理','ヤム料理'],
+    w1:['南太平洋唯一の君主制（王国）','2022年フンガ火山噴火で国際的注目を集めた','ホエールウォッチングの聖地'],
+    bmc:'約400円（T$6.50）',mofa:'https://www.mofa.go.jp/mofaj/area/tonga/index.html'},
+  'キリバス':{en:'Kiribati',flag:'🇰🇮',cont:'オセアニア',cap:'タラワ',pop:'約12万人',area:'0.0811万km²',currency:'豪ドル（AUD）',lat:1.33,lon:172.98,
+    ind:['漁業（マグロ）','農業（コプラ）','観光','リン鉱石（枯渇）'],
+    tour:['サウス・タラワ環礁','クリスマス島（キリチマティ）','アバイアン環礁','ミレニアム島（世界最初に新年を迎える）','フェニックス諸島（世界遺産）'],
+    food:['テ・バーイ（タコ料理）','コプラ料理','テ・バヴァ（発酵ヤシ酒）','マグロ料理','タロイモ料理'],
+    w1:['世界で最初に新年を迎える島がある（ミレニアム島）','海面上昇で国土水没の危機にある（気候変動最前線）','太平洋・大西洋・インド洋の3つの大洋にまたがる唯一の国'],
+    bmc:'約430円（A$3.00）',mofa:'https://www.mofa.go.jp/mofaj/area/kiribati/index.html'},
+  'ツバル':{en:'Tuvalu',flag:'🇹🇻',cont:'オセアニア',cap:'フナフティ',pop:'約1.1万人',area:'0.0026万km²',currency:'豪ドル（AUD）',lat:-8.52,lon:179.20,
+    ind:['漁業','コプラ','ドメイン販売（.tv）','援助経済','送金'],
+    tour:['フナフティ環礁','フナフティ保護区（珊瑚礁）','ヌクフェタウ環礁','ナヌメア環礁'],
+    food:['ファカライ（タロイモ料理）','プラカ（パンダナスの実料理）','コプラ料理','魚料理','ココナッツ料理'],
+    w1:['インターネットドメイン「.tv」を売って収入を得ている国','海面上昇で沈む危機にある最も脆弱な国のひとつ','世界第4位の小ささの国（人口わずか約1万1千人）'],
+    bmc:'約430円（A$3.00）',mofa:'https://www.mofa.go.jp/mofaj/area/tuvalu/index.html'},
+  'ナウル':{en:'Nauru',flag:'🇳🇷',cont:'オセアニア',cap:'ヤレン（正式な首都なし）',pop:'約1万人',area:'0.0021万km²',currency:'豪ドル（AUD）',lat:-0.53,lon:166.93,
+    ind:['リン鉱石（ほぼ枯渇）','漁業','援助経済','オフショア金融'],
+    tour:['バシー浜','アネタン地区','コモール湖','リン鉱石採掘跡','ナウル旧市街'],
+    food:['スパム缶詰料理','ココナッツ料理','魚料理','タロイモ料理','アイスクリーム（輸入品）'],
+    w1:['世界で3番目に小さい国（面積21km²）','リン鉱石バブルで一時は世界最高所得国だった','国民の肥満率が世界最高クラス（加工食品依存）'],
+    bmc:'約430円（A$3.00）',mofa:'https://www.mofa.go.jp/mofaj/area/nauru/index.html'},
+  'パラオ':{en:'Palau',flag:'🇵🇼',cont:'オセアニア',cap:'マルキョク',pop:'約1.8万人',area:'0.0459万km²',currency:'米ドル（USD）',lat:7.34,lon:134.48,
+    ind:['観光（ダイビング）','漁業','農業（タロイモ）','援助経済'],
+    tour:['ブルーコーナー（世界最高のダイビングスポット）','ジェリーフィッシュレイク','ミルキーウェイ（白泥美容）','ロックアイランド南部（世界遺産）','ペリリュー島（第二次大戦跡）'],
+    food:['タロイモ料理','コウモリシチュー','マンタローオタ（魚の煮込み）','コプラ料理','スパム料理'],
+    w1:['ブルーコーナーは世界最高峰のダイビングスポット','ジェリーフィッシュレイクでは刺さないクラゲと泳げる','世界初の「鮫禁漁区域」を設けた国'],
+    bmc:'約480円（$3.25）',mofa:'https://www.mofa.go.jp/mofaj/area/palau/index.html'},
+  'ミクロネシア連邦':{en:'Micronesia',flag:'🇫🇲',cont:'オセアニア',cap:'パリキール',pop:'約11万人',area:'0.0702万km²',currency:'米ドル（USD）',lat:6.92,lon:158.18,
+    ind:['漁業','農業','観光','援助経済'],
+    tour:['チューク環礁（沈没船ダイビング）','ポンペイのナン・マドール（世界遺産）','ヤップ島（石貨）','コスラエ島','チューク諸島'],
+    food:['タロイモ料理','ブレッドフルーツ料理','魚料理','コプラ料理','サクを（サトウキビ料理）'],
+    w1:['チューク環礁は世界最大の「鉄底海峡」（第二次大戦の沈没船が多数）','ヤップ島の石貨（ライ）は世界最大・最重の通貨','ナン・マドールは「太平洋のベネツィア」（世界遺産）'],
+    bmc:'約400円（$2.65）',mofa:'https://www.mofa.go.jp/mofaj/area/micronesia/index.html'},
+  'マーシャル諸島':{en:'Marshall Islands',flag:'🇲🇭',cont:'オセアニア',cap:'マジュロ',pop:'約4.2万人',area:'0.018万km²',currency:'米ドル（USD）',lat:7.13,lon:171.18,
+    ind:['漁業','コプラ','船舶登録','援助経済'],
+    tour:['マジュロ環礁','ビキニ環礁（世界遺産・核実験跡）','クワジェリン環礁','ミリ環礁','ラバラバダイビング'],
+    food:['コパ（コプラ料理）','魚料理','タロイモ料理','ブレッドフルーツ料理','スパム料理'],
+    w1:['ビキニ環礁は核実験跡地として世界遺産','「ビキニ」水着の名前の由来（核実験の衝撃から）','海面上昇で国土が消失する危機に直面'],
+    bmc:'約400円（$2.65）',mofa:'https://www.mofa.go.jp/mofaj/area/marshall/index.html'},
+  'クック諸島':{en:'Cook Islands',flag:'🇨🇰',cont:'オセアニア',cap:'アバルア',pop:'約1.7万人',area:'0.024万km²',currency:'NZドル（NZD）',lat:-21.24,lon:-159.78,
+    ind:['観光','農業（コプラ・果物）','漁業','真珠養殖','送金'],
+    tour:['ラロトンガ島（南太平洋の楽園）','アイツタキ環礁（世界最美ラグーン）','アバルア旧市街','マウンガプー山','ブラックパール農場'],
+    food:['ウム（石焼き料理）','イカ・マタ（生魚ライムマリネ）','コプラ料理','タロイモ料理','コーヒー（ラロトンガ産）'],
+    w1:['アイツタキ・ラグーンは「世界最美しいラグーン」とも呼ばれる','ニュージーランドに自由連合（ビザなし往来）','ブラックパールの産地として世界的に有名'],
+    bmc:'約600円（NZ$5.10）',mofa:'https://www.mofa.go.jp/mofaj/area/cook/index.html'},
+  'ニウエ':{en:'Niue',flag:'🇳🇺',cont:'オセアニア',cap:'アロフィ',pop:'約0.17万人',area:'0.026万km²',currency:'NZドル（NZD）',lat:-19.05,lon:-169.87,
+    ind:['観光','漁業','農業','送金'],
+    tour:['ヒネマタギ国立公園','タラヴァア洞窟','パレアハのプール（天然プール）','スリンプラム（ダイビング）','ムタリウ（コロニア遺跡）'],
+    food:['タロイモ料理','コプラ料理','魚料理','ウム（石焼き）','ポイ（タロイモペースト）'],
+    w1:['世界最小の独立国家のひとつ（人口約1,700人）','世界初のWiFi国家（全島Wi-Fiフリー）','ニウエのダイビングは世界トップクラスの透明度'],
+    bmc:'約600円（NZ$5.10）',mofa:'https://www.mofa.go.jp/mofaj/area/niue/index.html'}
+};
+
+// ── Aliases for voice/alternate spellings ──
+const ALIASES = {
+  'にほん':'日本','にっぽん':'日本','japan':'日本',
+  'usa':'アメリカ','米国':'アメリカ','アメリカ合衆国':'アメリカ','america':'アメリカ',
+  'france':'フランス','ふらんす':'フランス',
+  'germany':'ドイツ','どいつ':'ドイツ',
+  'uk':'イギリス','england':'イギリス','いぎりす':'イギリス','英国':'イギリス',
+  'italy':'イタリア','いたりあ':'イタリア',
+  'spain':'スペイン','すぺいん':'スペイン',
+  'russia':'ロシア','ろしあ':'ロシア',
+  'china':'中国','ちゅうごく':'中国',
+  'india':'インド','いんど':'インド',
+  'korea':'韓国','south korea':'韓国','かんこく':'韓国',
+  'brazil':'ブラジル','ぶらじる':'ブラジル',
+  'australia':'オーストラリア','おーすとらりあ':'オーストラリア',
+  'canada':'カナダ','かなだ':'カナダ',
+  'mexico':'メキシコ','めきしこ':'メキシコ',
+  'argentina':'アルゼンチン','あるぜんちん':'アルゼンチン',
+  'egypt':'エジプト','えじぷと':'エジプト',
+  'south africa':'南アフリカ','みなみあふりか':'南アフリカ',
+  'nigeria':'ナイジェリア',
+  'kenya':'ケニア','けにあ':'ケニア',
+  'turkey':'トルコ','とるこ':'トルコ',
+  'saudi':'サウジアラビア','saudi arabia':'サウジアラビア',
+  'uae':'アラブ首長国連邦','dubai':'アラブ首長国連邦','ドバイ':'アラブ首長国連邦',
+  'thailand':'タイ','たい':'タイ',
+  'vietnam':'ベトナム','べとなむ':'ベトナム',
+  'indonesia':'インドネシア','いんどねしあ':'インドネシア',
+  'philippines':'フィリピン','ふぃりぴん':'フィリピン',
+  'malaysia':'マレーシア','まれーしあ':'マレーシア',
+  'singapore':'シンガポール','しんがぽーる':'シンガポール',
+  'greece':'ギリシャ','ぎりしゃ':'ギリシャ',
+  'portugal':'ポルトガル','ぽるとがる':'ポルトガル',
+  'sweden':'スウェーデン','すうぇーでん':'スウェーデン',
+  'switzerland':'スイス','すいす':'スイス',
+  'netherlands':'オランダ','おらんだ':'オランダ','holland':'オランダ',
+  'norway':'ノルウェー','のるうぇー':'ノルウェー',
+  'finland':'フィンランド','ふぃんらんど':'フィンランド',
+  'new zealand':'ニュージーランド','にゅーじーらんど':'ニュージーランド',
+  'peru':'ペルー','ぺるー':'ペルー',
+  'colombia':'コロンビア','ころんびあ':'コロンビア',
+  'iran':'イラン','いらん':'イラン',
+  'pakistan':'パキスタン','ぱきすたん':'パキスタン',
+  'bangladesh':'バングラデシュ','ばんぐらでしゅ':'バングラデシュ',
+  'sri lanka':'スリランカ','すりらんか':'スリランカ',
+  'myanmar':'ミャンマー','みゃんまー':'ミャンマー','burma':'ミャンマー',
+  'cambodia':'カンボジア','かんぼじあ':'カンボジア',
+  'nepal':'ネパール','ねぱーる':'ネパール',
+  'ethiopia':'エチオピア','えちおぴあ':'エチオピア',
+  'morocco':'モロッコ','もろっこ':'モロッコ',
+  'tanzania':'タンザニア','たんざにあ':'タンザニア',
+  'ghana':'ガーナ','がーな':'ガーナ',
+  'cuba':'キューバ','きゅーばー':'キューバ',
+  'chile':'チリ','ちり':'チリ',
+  'ukraine':'ウクライナ','うくらいな':'ウクライナ',
+  'poland':'ポーランド','ぽーらんど':'ポーランド',
+  'iceland':'アイスランド','あいすらんど':'アイスランド',
+  'israel':'イスラエル','いすらえる':'イスラエル',
+};
+
+const CONTINENTS = ['すべて','アジア','ヨーロッパ','北米','南米','アフリカ','オセアニア'];
+const SUGGESTIONS_LIST = ['日本','アメリカ','フランス','ドイツ','中国','インド','ブラジル','エジプト','タイ','スイス'];
+
+let currentContinent = 'すべて';
+
+// ── Init ──
+function init() {
+  // Chips
+  const chipsEl = document.getElementById('chips');
+  SUGGESTIONS_LIST.forEach(s => {
+    const c = document.createElement('span');
+    c.className = 'chip'; c.textContent = s;
+    c.onclick = () => { document.getElementById('inp').value = s; search(s); };
+    chipsEl.appendChild(c);
+  });
+
+  // Tabs
+  const tabsEl = document.getElementById('tabs');
+  CONTINENTS.forEach(c => {
+    const t = document.createElement('div');
+    t.className = 'tab' + (c === 'すべて' ? ' active' : '');
+    t.textContent = c;
+    t.onclick = () => {
+      currentContinent = c;
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      showGrid();
+    };
+    tabsEl.appendChild(t);
+  });
+
+  showGrid();
+  setupMic();
+  setupPWA();
+
+  document.getElementById('searchBtn').onclick = () => search();
+  document.getElementById('inp').addEventListener('keydown', e => { if(e.key==='Enter') search(); });
+}
+
+function resolve(q) {
+  const t = q.trim();
+  if (COUNTRIES[t]) return t;
+  const l = t.toLowerCase();
+  if (ALIASES[l]) return ALIASES[l];
+  for (const k of Object.keys(COUNTRIES)) {
+    if (k.includes(t) || t.includes(k)) return k;
+  }
+  return null;
+}
+
+function search(q) {
+  const query = q || document.getElementById('inp').value;
+  if (!query.trim()) return;
+  const key = resolve(query);
+  if (!key) {
+    document.getElementById('result').innerHTML = `
+      <div class="error-box">
+        <div class="emoji">🤔</div>
+        <p>「${query}」は見つかりませんでした。<br>別の国名を試してみてね！</p>
+      </div>`;
+    return;
+  }
+  document.getElementById('result').innerHTML = `<div class="loading"><div class="spinner"></div><p>しらべています…</p></div>`;
+  setTimeout(() => renderCountry(key), 500);
+}
+
+function showGrid() {
+  const filtered = Object.entries(COUNTRIES).filter(([,d]) =>
+    currentContinent === 'すべて' || d.cont === currentContinent
+  );
+  const resultEl = document.getElementById('result');
+  resultEl.innerHTML = '<div class="country-grid" id="countryGrid"></div>';
+  const grid = document.getElementById('countryGrid');
+  filtered.forEach(([name, d]) => {
+    const el = document.createElement('div');
+    el.className = 'country-item';
+    el.innerHTML = `<span class="cf">${d.flag}</span><div><div class="cn">${name}</div><div class="cc">${d.cont}</div></div>`;
+    el.onclick = () => { document.getElementById('inp').value = name; search(name); };
+    grid.appendChild(el);
+  });
+}
+
+function renderCountry(key) {
+  const d = COUNTRIES[key];
+  const mapSrc = `https://maps.google.com/maps?q=${d.lat},${d.lon}&z=4&output=embed&t=m`;
+  const mofaUrl = d.mofa;
+
+  const makeTags = (arr, cls) => arr.map(x=>`<span class="tag ${cls}">${x}</span>`).join('');
+
+  document.getElementById('result').innerHTML = `
+    <div class="result-card">
+      <div class="card-hero">
+        <div class="flag-big">${d.flag}</div>
+        <div class="hero-info">
+          <h2>${key}</h2>
+          <div class="sub">${d.en} · 首都: ${d.cap}</div>
+          <span class="cont-badge">${d.cont}</span>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-cell">
+          <div class="stat-icon">👥</div>
+          <div class="stat-lbl">人口</div>
+          <div class="stat-val">${d.pop}</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-icon">🗾</div>
+          <div class="stat-lbl">面積</div>
+          <div class="stat-val">${d.area}</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-icon">💴</div>
+          <div class="stat-lbl">通貨</div>
+          <div class="stat-val">${d.currency}</div>
+        </div>
+      </div>
+
+      <div class="sections">
+
+        <div class="sec">
+          <div class="sec-head"><i class="ti ti-map-pin"></i>地図での位置</div>
+          <div class="map-box">
+            <iframe src="${mapSrc}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <a class="map-link" href="${mofaUrl}" target="_blank" rel="noopener">
+            <i class="ti ti-external-link"></i>外務省の${key}ページを見る
+          </a>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><i class="ti ti-building-factory-2"></i>主な産業</div>
+          <div class="tags">${makeTags(d.ind,'industry')}</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><i class="ti ti-camera"></i>観光スポット</div>
+          <div class="tags">${makeTags(d.tour,'tourism')}</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><i class="ti ti-bowl-chopsticks"></i>食べ物・グルメ</div>
+          <div class="tags">${makeTags(d.food,'food')}</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><i class="ti ti-trophy"></i>世界一・すごいこと</div>
+          <div class="tags">${makeTags(d.w1,'world1')}</div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-head"><i class="ti ti-burger"></i>ビッグマックのねだん</div>
+          <div class="bigmac-box">
+            <span style="font-size:32px">🍔</span>
+            <div>
+              <div class="bigmac-price">${d.bmc}</div>
+              <div class="bigmac-label">${key}でのビッグマックの値段</div>
+              <div class="bigmac-note">※参考価格（2024年頃のデータ）</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="more-btn" onclick="showGrid();document.getElementById('inp').value=''">← 国一覧にもどる</button>
+      </div>
+    </div>`;
+}
+
+// ── Mic ──
+function setupMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn = document.getElementById('micBtn');
+  const hint = document.getElementById('micHint');
+  if (!SR) { btn.style.opacity='0.4'; btn.disabled=true; return; }
+
+  let r = null;
+  let isRecording = false;
+
+  function startRec() {
+    // Safariのため毎回新しいインスタンスを生成
+    r = new SR();
+    r.lang = 'ja-JP';
+    r.interimResults = false;
+    r.maxAlternatives = 1;
+    r.continuous = false;
+
+    r.onstart = () => {
+      isRecording = true;
+      btn.classList.add('recording');
+      hint.textContent = '🎙 聞いています… 国名を話してね';
+    };
+    r.onend = () => {
+      isRecording = false;
+      btn.classList.remove('recording');
+      r = null;
+    };
+    r.onresult = e => {
+      const t = e.results[0][0].transcript;
+      document.getElementById('inp').value = t;
+      hint.textContent = `「${t}」と認識しました`;
+      setTimeout(() => search(t), 400);
+    };
+    r.onerror = e => {
+      isRecording = false;
+      btn.classList.remove('recording');
+      r = null;
+      if (e.error === 'not-allowed') {
+        hint.textContent = '⚠ マイクの許可が必要です（設定→Safari→マイク）';
+      } else if (e.error === 'no-speech') {
+        hint.textContent = '⚠ 声が聞こえませんでした。もう一度どうぞ';
+      } else {
+        hint.textContent = '⚠ 認識できませんでした（' + e.error + '）';
+      }
+    };
+
+    try {
+      r.start();
+    } catch(e) {
+      isRecording = false;
+      btn.classList.remove('recording');
+      hint.textContent = '⚠ マイクを起動できませんでした';
+      r = null;
+    }
+  }
+
+  function stopRec() {
+    if (r) {
+      try { r.stop(); } catch(e) {}
+    }
+  }
+
+  btn.onclick = () => {
+    if (isRecording) {
+      stopRec();
+    } else {
+      hint.textContent = '';
+      startRec();
+    }
+  };
+}
+
+// ── PWA ──
+function setupPWA() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  }
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); deferredPrompt = e;
+    showInstallBanner();
+  });
+}
+
+function showInstallBanner() {
+  const b = document.getElementById('installBanner');
+  b.style.display = 'flex';
+  b.innerHTML = `
+    <span class="icon">🌍</span>
+    <div class="text">
+      <strong>ホーム画面に追加しよう！</strong>
+      アプリとして使えるよ
+    </div>
+    <button class="install-banner-close" id="installBtn">追加する</button>
+    <button class="install-banner-x" id="closeBanner" aria-label="閉じる">×</button>`;
+  document.getElementById('closeBanner').onclick = () => { b.style.display='none'; };
+  document.getElementById('installBtn').onclick = async () => {
+    if (!window._deferredPrompt) return;
+    window._deferredPrompt.prompt();
+    const { outcome } = await window._deferredPrompt.userChoice;
+    b.style.display = 'none';
+  };
+}
+
+
+// ═══════════════════════════════════════
+// PAGE NAVIGATION
+// ═══════════════════════════════════════
+function showPage(page) {
+  ['search','quiz','ranking'].forEach(p => {
+    const el = document.getElementById('page-'+p);
+    if (el) el.style.display = p===page ? 'block' : 'none';
+    const btn = document.getElementById('nav'+p.charAt(0).toUpperCase()+p.slice(1));
+    if (btn) btn.classList.toggle('active', p===page);
+  });
+  if (page==='quiz') renderQuizMenu();
+  if (page==='ranking') renderRanking();
+}
+
+// ═══════════════════════════════════════
+// QUIZ ENGINE
+// ═══════════════════════════════════════
+const QUIZ_TYPES = [
+  {id:'flag',  icon:'🚩', name:'国旗当て',   desc:'国旗を見て国名を答えよう'},
+  {id:'cap',   icon:'🏛', name:'首都当て',   desc:'国名を見て首都を答えよう'},
+  {id:'food',  icon:'🍜', name:'食べ物当て', desc:'料理名を見て国を答えよう'},
+];
+const DIFFS = [
+  {id:'easy',   label:'かんたん', q:8,  choices:3, emoji:'⭐'},
+  {id:'normal', label:'ふつう',   q:12, choices:4, emoji:'⭐⭐'},
+  {id:'hard',   label:'むずかしい',q:15, choices:4, emoji:'⭐⭐⭐'},
+];
+
+// 豆知識DB（国名 → 配列。クイズ種別で選択）
+function getTip(countryKey, type) {
+  const d = COUNTRIES[countryKey];
+  if (!d) return '';
+  if (type==='cap')  return `${countryKey}の首都${d.cap}は人口${d.pop}の国の中心都市です。`;
+  if (type==='food') return `${d.food[0]}は${countryKey}を代表する料理で、${d.w1[0]}`;
+  // flag
+  return d.w1[Math.floor(Math.random()*d.w1.length)];
+}
+
+let quizState = {
+  type: 'flag', diff: 'normal',
+  questions: [], idx: 0,
+  score: 0, streak: 0, maxStreak: 0,
+  startTime: 0, answered: false,
+  pendingScore: null,
+};
+
+function renderQuizMenu() {
+  const el = document.getElementById('quiz-inner');
+  const keys = Object.keys(COUNTRIES);
+  el.innerHTML = `
+    <div class="sec-title"><i class="ti ti-gamepad-2" style="color:var(--purple)"></i>クイズにチャレンジ！</div>
+    <div class="quiz-menu-grid">
+      ${QUIZ_TYPES.map(t=>`
+        <div class="quiz-type-card ${t.id}-quiz ${quizState.type===t.id?'active-type':''}" onclick="selectType('${t.id}')" id="qtype-${t.id}"
+          style="${quizState.type===t.id?'border-width:2px;background:var(--blue-light)':''}">
+          <div class="qt-icon">${t.icon}</div>
+          <div class="qt-name">${t.name}</div>
+          <div class="qt-desc">${t.desc}</div>
+        </div>`).join('')}
+      <div class="quiz-type-card" style="border-color:var(--purple);grid-column:span 1;cursor:default;opacity:0.5">
+        <div class="qt-icon">🔀</div>
+        <div class="qt-name">ミックス</div>
+        <div class="qt-desc">近日公開！</div>
+      </div>
+    </div>
+
+    <div class="sec-title"><i class="ti ti-adjustments" style="color:var(--blue)"></i>むずかしさ</div>
+    <div class="diff-row">
+      ${DIFFS.map(d=>`
+        <button class="diff-btn ${d.id} ${quizState.diff===d.id?'active':''}" onclick="selectDiff('${d.id}')" id="diff-${d.id}">
+          ${d.emoji}<br>${d.label}<br><span style="font-size:10px;font-weight:400">${d.q}問</span>
+        </button>`).join('')}
+    </div>
+
+    <button class="quiz-start-btn" onclick="startQuiz()">
+      🎯 クイズスタート！
+    </button>
+
+    <div class="sec-title"><i class="ti ti-chart-bar" style="color:var(--orange)"></i>あなたの記録
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="rs-cell"><div class="rs-val">${getTotalGames()}</div><div class="rs-lbl">プレイ回数</div></div>
+      <div class="rs-cell"><div class="rs-val">${getBestStreak()}</div><div class="rs-lbl">最高ストリーク</div></div>
+      <div class="rs-cell"><div class="rs-val">${getBestScore()}</div><div class="rs-lbl">最高スコア</div></div>
+    </div>
+  `;
+}
+
+function selectType(id) {
+  quizState.type = id;
+  renderQuizMenu();
+}
+function selectDiff(id) {
+  quizState.diff = id;
+  renderQuizMenu();
+}
+
+function startQuiz() {
+  const diff = DIFFS.find(d=>d.id===quizState.diff);
+  const allKeys = Object.keys(COUNTRIES);
+  const shuffled = allKeys.sort(()=>Math.random()-0.5);
+  const selected = shuffled.slice(0, diff.q);
+
+  quizState.questions = selected.map(key => buildQuestion(key, quizState.type, diff.choices, allKeys));
+  quizState.idx = 0;
+  quizState.score = 0;
+  quizState.streak = 0;
+  quizState.maxStreak = 0;
+  quizState.startTime = Date.now();
+  renderQuestion();
+}
+
+function buildQuestion(answerKey, type, numChoices, allKeys) {
+  const d = COUNTRIES[answerKey];
+  let question, answerText, getChoiceText;
+
+  if (type === 'flag') {
+    question = `この国旗はどこの国？`;
+    answerText = answerKey;
+    getChoiceText = k => k;
+  } else if (type === 'cap') {
+    question = `${answerKey}（${d.flag}）の首都はどこ？`;
+    answerText = d.cap;
+    getChoiceText = k => COUNTRIES[k].cap;
+  } else { // food
+    const foodItem = d.food[Math.floor(Math.random()*d.food.length)];
+    question = `「${foodItem}」はどこの国の料理？`;
+    answerText = answerKey;
+    getChoiceText = k => k;
+  }
+
+  // build wrong choices (avoid duplicates for cap quiz)
+  const wrongKeys = allKeys.filter(k => {
+    if (k === answerKey) return false;
+    if (type === 'cap') return COUNTRIES[k].cap !== d.cap;
+    return true;
+  }).sort(()=>Math.random()-0.5).slice(0, numChoices-1);
+
+  const choices = [answerKey, ...wrongKeys]
+    .sort(()=>Math.random()-0.5)
+    .map(k => ({ key:k, text: getChoiceText(k) }));
+
+  return { type, answerKey, answerText, question, choices,
+    displayFlag: d.flag, tip: getTip(answerKey, type) };
+}
+
+function renderQuestion() {
+  const el = document.getElementById('quiz-inner');
+  const diff = DIFFS.find(d=>d.id===quizState.diff);
+  const total = quizState.questions.length;
+  const q = quizState.questions[quizState.idx];
+  const pct = (quizState.idx / total) * 100;
+  const streakClass = quizState.streak >= 3 ? 'hot' : '';
+
+  el.innerHTML = `
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quiz-meta">
+      <span style="font-weight:700">${quizState.idx+1} / ${total}問</span>
+      <div class="streak-badge ${streakClass}">🔥 ${quizState.streak}連続正解</div>
+      <span style="font-weight:800;color:var(--blue)">${quizState.score}pt</span>
+    </div>
+
+    <div class="q-card">
+      ${q.type==='flag' ? `<div class="q-flag">${q.displayFlag}</div>` : ''}
+      <div class="q-question">${q.question}</div>
+      
+    </div>
+
+    <div class="choices" id="choices">
+      ${q.choices.map((c,i)=>`
+        <button class="choice-btn" id="ch-${i}" onclick="answer(${i},'${q.answerKey}')">
+          ${q.type==='flag'||q.type==='food' ? c.text : c.text}
+        </button>`).join('')}
+    </div>
+    <div id="feedback"></div>
+  `;
+}
+
+function answer(choiceIdx, answerKey) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const q = quizState.questions[quizState.idx];
+  const chosen = q.choices[choiceIdx];
+  const correct = chosen.key === answerKey;
+  const diff = DIFFS.find(d=>d.id===quizState.diff);
+
+  // Disable all buttons + color
+  q.choices.forEach((c,i) => {
+    const btn = document.getElementById('ch-'+i);
+    btn.disabled = true;
+    if (c.key === answerKey) btn.classList.add('reveal');
+    if (i === choiceIdx && !correct) btn.classList.add('wrong');
+  });
+
+  // Score: base + streak bonus + diff bonus
+  let pts = 0;
+  if (correct) {
+    quizState.streak++;
+    quizState.maxStreak = Math.max(quizState.maxStreak, quizState.streak);
+    const streakBonus = Math.min(quizState.streak-1, 5) * 10;
+    const diffBonus = {easy:10, normal:20, hard:30}[quizState.diff];
+    pts = diffBonus + streakBonus;
+    quizState.score += pts;
+  } else {
+    quizState.streak = 0;
+  }
+
+  const fb = document.getElementById('feedback');
+  const isLast = quizState.idx >= quizState.questions.length - 1;
+  fb.innerHTML = `
+    <div class="feedback-box ${correct?'correct-fb':'wrong-fb'}">
+      <div class="feedback-title">${correct ? `🎉 せいかい！ +${pts}pt` : `❌ ざんねん…`}</div>
+      <div class="feedback-tip">
+        ${correct ? '' : `<b>正解：</b>${q.answerText}<br>`}
+        💡 ${q.tip}
+      </div>
+    </div>
+    <button class="next-btn" onclick="nextQuestion()">
+      ${isLast ? '🏁 けっかを見る' : '次の問題へ →'}
+    </button>
+  `;
+  quizState.answered = false;
+  setTimeout(() => { document.getElementById('feedback')?.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 100);
+}
+
+function nextQuestion() {
+  quizState.idx++;
+  if (quizState.idx >= quizState.questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+    quizState.answered = false;
+  }
+}
+
+function showResult() {
+  const elapsed = Math.round((Date.now() - quizState.startTime) / 1000);
+  const total = quizState.questions.length;
+  const correct = quizState.questions.filter((_,i) => {
+    // count by re-checking won't work; track separately
+    return false;
+  }).length;
+
+  // Calculate correct answers from score
+  const diff = DIFFS.find(d=>d.id===quizState.diff);
+  const basePerQ = {easy:10,normal:20,hard:30}[quizState.diff];
+  // Estimate: store correct count during game
+  const correctCount = quizState._correct || 0;
+  const pct = Math.round((quizState.score / (total * (basePerQ+25))) * 100);
+
+  let stars = '⭐';
+  let comment = 'もう一度挑戦してみよう！';
+  if (quizState.score >= total * basePerQ * 0.9) { stars='🌟🌟🌟'; comment='かんぺき！すごい！！'; }
+  else if (quizState.score >= total * basePerQ * 0.6) { stars='⭐⭐'; comment='よくできました！'; }
+  else if (quizState.score >= total * basePerQ * 0.3) { stars='⭐'; comment='なかなかいいね！'; }
+
+  const typeName = QUIZ_TYPES.find(t=>t.id===quizState.type)?.name || '';
+  const mins = Math.floor(elapsed/60);
+  const secs = elapsed % 60;
+  const timeStr = mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`;
+
+  // Save to ranking
+  const entry = {
+    type: quizState.type,
+    typeName,
+    diff: quizState.diff,
+    diffLabel: diff.label,
+    score: quizState.score,
+    streak: quizState.maxStreak,
+    time: timeStr,
+    date: new Date().toLocaleDateString('ja-JP'),
+    total,
+  };
+  saveRankingEntry(entry);
+  quizState.pendingScore = entry;
+
+  const el = document.getElementById('quiz-inner');
+  el.innerHTML = `
+    <div class="result-screen">
+      <div class="result-stars">${stars}</div>
+      <div class="result-score">${quizState.score}</div>
+      <div class="result-label">ポイント</div>
+      <div class="result-comment">${comment}</div>
+      <div class="result-stats">
+        <div class="rs-cell"><div class="rs-val">${quizState.maxStreak}🔥</div><div class="rs-lbl">最高ストリーク</div></div>
+        <div class="rs-cell"><div class="rs-val">${timeStr}</div><div class="rs-lbl">タイム</div></div>
+        <div class="rs-cell"><div class="rs-val">${typeName}</div><div class="rs-lbl">クイズ種別</div></div>
+      </div>
+
+      <div class="name-input-wrap">
+        <label>📝 ニックネームを入力してランキングに登録しよう！</label>
+        <input class="name-input" id="playerName" type="text" placeholder="なまえを入れてね" maxlength="12">
+        <button class="save-btn" onclick="saveScore()">ランキングに登録する 🏆</button>
+      </div>
+    </div>
+    <div class="result-btns">
+      <button class="result-btns btn-retry" style="flex:1;padding:13px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;background:var(--blue);color:#fff;border:none;box-shadow:0 2px 8px rgba(41,128,217,0.3)" onclick="startQuiz()">もう一度 🔄</button>
+      <button class="result-btns btn-menu" style="flex:1;padding:13px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;background:var(--card);color:var(--text);border:1.5px solid var(--border)" onclick="renderQuizMenu()">メニューへ</button>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// RANKING / STORAGE
+// ═══════════════════════════════════════
+const RANK_KEY = 'kuniapp_ranking_v2';
+const STATS_KEY = 'kuniapp_stats_v1';
+
+function getRanking() {
+  try { return JSON.parse(localStorage.getItem(RANK_KEY)||'[]'); } catch(e){ return []; }
+}
+function saveRankingEntry(entry) {
+  try {
+    const stats = JSON.parse(localStorage.getItem(STATS_KEY)||'{"games":0,"bestStreak":0,"bestScore":0}');
+    stats.games++;
+    stats.bestStreak = Math.max(stats.bestStreak, entry.streak);
+    stats.bestScore  = Math.max(stats.bestScore,  entry.score);
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  } catch(e){}
+}
+function saveScore() {
+  const name = (document.getElementById('playerName')?.value||'').trim() || 'なまえなし';
+  if (!quizState.pendingScore) return;
+  try {
+    const ranking = getRanking();
+    ranking.push({...quizState.pendingScore, name, ts: Date.now()});
+    ranking.sort((a,b)=>b.score-a.score);
+    localStorage.setItem(RANK_KEY, JSON.stringify(ranking.slice(0,100)));
+    quizState.pendingScore = null;
+    showPage('ranking');
+  } catch(e){ alert('保存できませんでした'); }
+}
+function getTotalGames()  { try { return JSON.parse(localStorage.getItem(STATS_KEY)||'{}').games||0; } catch(e){return 0;} }
+function getBestStreak()  { try { return JSON.parse(localStorage.getItem(STATS_KEY)||'{}').bestStreak||0; } catch(e){return 0;} }
+function getBestScore()   { try { return JSON.parse(localStorage.getItem(STATS_KEY)||'{}').bestScore||0; } catch(e){return 0;} }
+
+let rankTab = 'all';
+function renderRanking() {
+  const el = document.getElementById('ranking-inner');
+  const all = getRanking();
+
+  const typeFilter = rankTab === 'all' ? null : rankTab;
+  const shown = typeFilter ? all.filter(r=>r.type===typeFilter) : all;
+
+  const tabs = [
+    {id:'all',  label:'すべて'},
+    {id:'flag', label:'🚩国旗'},
+    {id:'cap',  label:'🏛首都'},
+    {id:'food', label:'🍜食べ物'},
+  ];
+
+  el.innerHTML = `
+    <div class="sec-title"><i class="ti ti-trophy" style="color:#f1c40f"></i>ランキング</div>
+    <div class="ranking-tabs">
+      ${tabs.map(t=>`<button class="rtab ${rankTab===t.id?'active':''}" onclick="setRankTab('${t.id}')">${t.label}</button>`).join('')}
+    </div>
+    ${shown.length === 0
+      ? `<div class="rank-empty"><div class="big">🏆</div><p>まだ記録がありません。<br>クイズに挑戦してみよう！</p></div>`
+      : `<div class="ranking-list">
+          ${shown.slice(0,20).map((r,i)=>{
+            const numClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+            const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+            return `<div class="rank-item">
+              <div class="rank-num ${numClass}">${medal}</div>
+              <div class="rank-info">
+                <div class="rank-name">${r.name}</div>
+                <div class="rank-detail">${r.typeName}・${r.diffLabel}・${r.date}・🔥${r.streak}</div>
+              </div>
+              <div class="rank-score">${r.score}pt</div>
+            </div>`;
+          }).join('')}
+        </div>`
+    }
+    <div style="margin-top:20px">
+      <div class="sec-title"><i class="ti ti-chart-bar" style="color:var(--blue)"></i>じぶんの記録</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div class="rs-cell"><div class="rs-val">${getTotalGames()}</div><div class="rs-lbl">プレイ回数</div></div>
+        <div class="rs-cell"><div class="rs-val">${getBestStreak()}</div><div class="rs-lbl">最高ストリーク</div></div>
+        <div class="rs-cell"><div class="rs-val">${getBestScore()}</div><div class="rs-lbl">最高スコア</div></div>
+      </div>
+    </div>
+    <button style="width:100%;margin-top:16px;padding:11px;border-radius:var(--radius-sm);background:var(--red-light);color:var(--red);border:1px solid #f5b8b8;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer" onclick="if(confirm('ランキングデータをすべて削除しますか？')){localStorage.removeItem('${RANK_KEY}');localStorage.removeItem('${STATS_KEY}');renderRanking()}">ランキングをリセット</button>
+  `;
+}
+
+function setRankTab(id) { rankTab = id; renderRanking(); }
+
+init();
+</script>
+</body>
+</html>
